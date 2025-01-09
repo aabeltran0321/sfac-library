@@ -1,85 +1,55 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Students | SFAC Library</title>
         <link rel="icon" href="./static/SFAC_logo.png">
         <link rel="stylesheet" href="./styles/styles.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
     </head>
-    <!--HEADER-->
-    <header>
-        <div class="header">
-            <div class="header_title">
-                <p>BEYOND THE <br> BASICS LIBRARY</p>
-            </div>
-            <div class="menu">
-                <img src="./static/menu.png" class="menu_img">
-            </div>
-            <div class="logo">
-                <img src="./static/SFAC_logo.png" class="logo_img">
-            </div>
+<header>
+    <h2>BEYOND THE<br>BASICS LIBRARY</h2>
+    <img src="./static/SFAC_logo.png" class="logo_img">
+</header>
+<body>
+    <div class="container-body">
+        <div class="sidebar">
+            <a href="#"><p class="username"><img src="./static/sample_profile.jpg" class="profile_img"> Librarian</p></a>
+            <p class="sidebar_header">HEADER</p>
+            <a href="./Dashboard.html"><p ><img src="./static/dashboard.png" class="sidebar_img">Dashboard</p></a>
+            <a href="./Students.html"><p class="highlighted"><img src="./static/members_img.png"class="sidebar_img">Students</p></a>
+            <a href="./Books.html"><p ><img src="./static/books.png" class="sidebar_img">Books</p></a>
+            <a href="./Transaction.html"><p><img src="./static/transactions.png" class="sidebar_img">Transactions</p></a>
         </div>
-    </header>
-    <body>
-        <!--SIDEBAR-->
-        <div class="main">
-            <div class="sidebar">
-                <div class="sidebar_profile">
-                    <a href="#"><p><img src="./static/sample_profile.jpg" class="profile_img"> Librarian</p></a>
-                </div>
-                <div class="sidebar_header">
-                    <p>HEADER</p>
-                </div>
-                <div>
-                    <div class="sidebar_tabs">
-                        <a href="./Dashboard.html"><p><img src="./static/dashboard.png" class="sidebar_img">Dashboard</p></a>
-                    </div>
-                    <div class="sidebar_tabs highlighted">
-                        <a href="./Students.html"><p><img src="./static/members_img.png"class="sidebar_img">Students</p></a>
-                    </div>
-                    <div class="sidebar_tabs">
-                        <a href="./Books.html"><p><img src="./static/books.png" class="sidebar_img">Books</p></a>
-                    </div>
-                    <div class="sidebar_tabs">
-                        <a href="./Transaction.html"><p class="sidebar_tabs_text"><img src="./static/transactions.png" class="sidebar_img">Transactions</p></a>
-                    </div>
+        <div class="main-container">
+            <div style="display: flex;">
+                <p class="dashboard_title">STUDENTS</p>
+                <div class="registration_con" onclick="openModal()">
+                    <p class="registration_text">Register</p><img src="./static/plus.png" class="plus_button">
                 </div>
             </div>
-            <div style="width: 80vw; margin-left:auto;">
-                <div class="dashboard">
-                    <div class="title_header">
-                        <div class="dashboard_title">
-                            <p class="title_text">STUDENTS</p>
-                        </div> 
-                        <div class="registration_con" onclick="openModal()">
-                            <p class="registration_text">Register</p><img src="./static/plus.png" class="plus_button">
-                        </div>
-                    </div>
-                    
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID Number</th>
-                                <th>Name</th>
-                                <th>Email Address</th>
-                                <th>RFID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- Rows will be dynamically added here -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Number</th>
+                            <th>Name</th>
+                            <th>Email Address</th>
+                            <th>RFID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        <div id="overlay"></div>
+            
+        </div>    
+    </div>
+    <div id="overlay"></div>
         <div id="modal">
             <h3 style="font-size: 24px; text-align: center;"><i class="fa fa-user"></i>&nbsp;PERSONAL INFO</h3>
             <form id="add-form" onsubmit="addEntry(event)">
@@ -107,45 +77,47 @@
             </form>
             
         </div>
-    </body>
-    <script>
-        const modal = document.getElementById('modal');
-        const overlay = document.getElementById('overlay');
+   
 
-        function openModal() {
-            modal.style.display = 'block';
-            overlay.style.display = 'block';
-        }
+</body>
+<script>
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
 
-        function closeModal() {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-        }
+    function openModal() {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+    }
 
-        function addEntry(event) {
-            event.preventDefault();
+    function closeModal() {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    }
 
-            const idNumber = document.getElementById('id-number').value;
-            const fname = document.getElementById('first_name').value;
-            const lname = document.getElementById('last_name').value;
-            const mname = document.getElementById('middle_name').value;
+    function addEntry(event) {
+        event.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const rfid = document.getElementById('rfid').value;
+        const idNumber = document.getElementById('id-number').value;
+        const fname = document.getElementById('first_name').value;
+        const lname = document.getElementById('last_name').value;
+        const mname = document.getElementById('middle_name').value;
 
-            const tableBody = document.getElementById('table-body');
-            const row = document.createElement('tr');
+        const email = document.getElementById('email').value;
+        const rfid = document.getElementById('rfid').value;
 
-            row.innerHTML = `
-                <td>${idNumber}</td>
-                <td>${lname}, ${fname} ${mname}</td>
-                <td>${email}</td>
-                <td>${rfid}</td>
-            `;
+        const tableBody = document.getElementById('table-body');
+        const row = document.createElement('tr');
 
-            tableBody.appendChild(row);
-            closeModal();
-            document.getElementById('add-form').reset();
-        }
-    </script>
+        row.innerHTML = `
+            <td>${idNumber}</td>
+            <td>${lname}, ${fname} ${mname}</td>
+            <td>${email}</td>
+            <td>${rfid}</td>
+        `;
+
+        tableBody.appendChild(row);
+        closeModal();
+        document.getElementById('add-form').reset();
+    }
+</script>
 </html>
