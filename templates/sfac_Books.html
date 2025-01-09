@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Books | SFAC Library</title>
+        <link rel="icon" href="../static/SFAC_logo.png">
+        <link rel="stylesheet" href="../static/styles/sfac_styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    </head>
+<header>
+    <h2>BEYOND THE<br>BASICS LIBRARY</h2>
+    <img src="../static/SFAC_logo.png" class="logo_img">
+</header>
+<body>
+    <div class="container-body">
+        <div class="sidebar">
+            <a href="#"><p class="username"><img src="../static/sample_profile.jpg" class="profile_img"> Librarian</p></a>
+            <p class="sidebar_header">HEADER</p>
+            <a href="./Dashboard"><p><img src="../static/dashboard.png" class="sidebar_img">Dashboard</p></a>
+            <a href="./Students"><p ><img src="../static/members_img.png"class="sidebar_img">Students</p></a>
+            <a href="./Books"><p class="highlighted"><img src="../static/books.png" class="sidebar_img">Books</p></a>
+            <a href="./Transaction"><p><img src="../static/transactions.png" class="sidebar_img">Transactions</p></a>
+        </div>
+        <div class="main-container">
+            <div style="display: flex;">
+                <p class="dashboard_title">Books</p>
+                
+                <div class="registration_con" onclick="openModal()">
+                    
+                    <p class="registration_text">Add Book</p><img src="../static/plus.png" class="plus_button">
+                </div>
+                <input type="text" id="search" placeholder="Search" class="searchbar">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>RFID Code</th>
+                            <th>Book ID</th>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Genre</th>
+                            <th>Publisher</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in book_data %}
+                        <tr>
+                            <td>{{ row.rfid_code }}</td>
+                            <td>{{ row.book_id }}</td>
+                            <td>{{ row.book_title }}</td>
+                            <td>{{ row.author }}</td>
+                            <td>{{ row.genre }}</td>
+                            <td>{{ row.publisher }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+            
+    </div>
+    <div id="overlay"></div>
+    <div id="modal">
+        <h3 style="font-size: 24px; text-align: center;"><i class="fa fa-user"></i>&nbsp;Book Enrollment</h3>
+        <form id="add-form" onsubmit="addEntry(event)">
+            <label for="rfid-code">RFID Code</label>
+            <input type="text" id="rfid-code" placeholder="RFID Code" required>
+            
+            <label for="book-id">Book ID</label>
+            <input type="text" id="book-id" placeholder="Book ID" required>
+            
+            <label for="book-title">Book Title</label>
+            <input type="text" id="book-title" placeholder="Book Title" required>
+            
+            <label for="author">Author</label>
+            <input type="text" id="author" placeholder="Author" required>
+            
+            <label for="genre">Genre</label>
+            <input type="text" id="genre" placeholder="Genre" required>
+            
+            <label for="publisher">Publisher</label>
+            <input type="text" id="publisher" placeholder="Publisher" required>
+            
+            <label for="upload-photo">Upload Photo</label>
+            <input type="file" id="upload-photo" accept="image/*" required>
+            
+            <button type="submit" class="register-btn">Register</button>
+            <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
+        </form>
+        
+</div>
+
+</body>
+<script>
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+
+    function openModal() {
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+
+    function addEntry(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get form values
+        const rfidCode = document.getElementById("rfid-code").value;
+        const bookId = document.getElementById("book-id").value;
+        const bookTitle = document.getElementById("book-title").value;
+        const author = document.getElementById("author").value;
+        const genre = document.getElementById("genre").value;
+        const publisher = document.getElementById("publisher").value;
+
+        // Reference the table
+        const table = document.getElementById("table-body"); // Replace 'book-table' with your table's ID
+
+        // Create a new row
+        const newRow = table.insertRow();
+
+        // Add cells to the new row and populate with form data
+        newRow.insertCell(0).textContent = rfidCode;
+        newRow.insertCell(1).textContent = bookId;
+        newRow.insertCell(2).textContent = bookTitle;
+        newRow.insertCell(3).textContent = author;
+        newRow.insertCell(4).textContent = genre;
+        newRow.insertCell(5).textContent = publisher;
+
+        // Optionally clear the form fields
+        document.getElementById("add-form").reset();
+        closeModal();
+    }
+    document.getElementById('search').addEventListener('keyup', function() {
+        let searchTerm = this.value.toLowerCase();
+        let rows = document.querySelectorAll('table tbody tr');
+        
+        rows.forEach(function(row) {
+            let cells = row.getElementsByTagName('td');
+            let rowText = '';
+            
+            for (let i = 0; i < cells.length; i++) {
+                rowText += cells[i].textContent.toLowerCase() + ' ';
+            }
+            
+            if (rowText.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+</script>
+</html>
