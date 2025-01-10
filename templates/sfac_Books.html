@@ -75,7 +75,7 @@
         <h3 style="font-size: 24px; text-align: center;"><i class="fa fa-user"></i>&nbsp;Book Enrollment</h3>
         <form id="add-form" onsubmit="addEntry(event)">
             <label for="rfid-code">RFID Code</label>
-            <input type="text" id="rfid_code" placeholder="RFID Code" required>
+            <input type="text" id="rfid_code" placeholder="RFID Code" required readonly>
             
             <label for="book-id">Book ID</label>
             <input type="text" id="book_id" placeholder="Book ID" required>
@@ -109,6 +109,7 @@
     function openModal() {
         modal.style.display = 'block';
         overlay.style.display = 'block';
+        fetchUHFRfidCode();
     }
 
     function closeModal() {
@@ -200,7 +201,19 @@
             alert('An error occurred while deleting the user.');
         });
     }
-
+async function fetchUHFRfidCode() {
+  try {
+    const response = await fetch('/sfac/get_uhf_rfid_code');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('RFID Code:', data.message);
+    document.getElementById("rfid_code").value = data.message;
+  } catch (error) {
+    alert('Cannot detect the RFID Scanner');
+  }
+}
 
 </script>
 </html>

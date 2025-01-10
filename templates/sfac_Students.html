@@ -89,7 +89,7 @@
                 <input type="email" id="email" placeholder="Email Address" required>
             
                 <label for="rfid">RFID</label>
-                <input type="text" id="rfid" placeholder="RFID" required>
+                <input type="text" id="rfid" placeholder="RFID" required readonly>
             
                 <button type="submit" class="register-btn" id="agree-btn">Register</button>
                 <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
@@ -108,7 +108,10 @@
     function openModal() {
         modal.style.display = 'block';
         overlay.style.display = 'block';
-        document.getElementById("agree-btn").textContent = "Register"
+        document.getElementById("agree-btn").textContent = "Register";
+        if(isUpdate === 0){
+            fetchRfidCode();
+        }
     }
 
     function closeModal() {
@@ -116,6 +119,7 @@
         overlay.style.display = 'none';
         document.getElementById('add-form').reset();
         isUpdate = 0;
+        location.reload()
     }
 
     function addEntry(event) {
@@ -277,5 +281,20 @@ function deleteNow(idNumber){
         alert('An error occurred while deleting the user.');
     });
 }
+
+async function fetchRfidCode() {
+  try {
+    const response = await fetch('/sfac/get_rfid_code');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('RFID Code:', data.message);
+    document.getElementById("rfid").value = data.message;
+  } catch (error) {
+    alert('Cannot detect the RFID Scanner');
+  }
+}
+
 </script>
 </html>

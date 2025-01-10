@@ -1,13 +1,19 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 import sqlite3
-import serial.tools.list_ports
+from Parser_WTA import Parser
+from threading import Thread
+from serialport import HardwareSerial
+import os
+from werkzeug.utils import secure_filename
+
+PORT = "COM6"
+BAUD_RATE = 9600
 
 app = Flask(__name__)
 extension = "./"
 SFAC_DATABASE = f'{extension}sfac_library.db'
 
-import os
-from werkzeug.utils import secure_filename
+rfid_code = ""
 
 UPLOAD_FOLDER = 'static/sfac_uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -203,6 +209,56 @@ def sfac_get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+
+@app.route('/sfac/rfid_code_empty', methods=['POST'])
+def sfac_rfid_code_empty():
+    global rfid_code
+    try:
+        rfid_code = ""
+        return jsonify({'message': 'Remove RFID successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/sfac/get_rfid_code')
+def sfac_get_rfid_code():
+    enroll_rfid = Parser("Enroll ","\r",1,200)
+    Serial1 = HardwareSerial(PORT)
+    try:
+        Serial1.begin(BAUD_RATE)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    while True:
+        while Serial1.available():
+            c = Serial1.read()
+            c = c.decode()
+
+            if enroll_rfid.available(c):
+                rfid_code = enroll_rfid.data
+                print(rfid_code)
+                Serial1.close()
+                return jsonify({'message': rfid_code}), 200
+            
+@app.route('/sfac/get_uhf_rfid_code')
+def sfac_get_uhf_rfid_code():
+    enroll_rfid = Parser("Enroll ","\r",1,200)
+    Serial1 = HardwareSerial(PORT)
+    try:
+        Serial1.begin(BAUD_RATE)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    while True:
+        while Serial1.available():
+            c = Serial1.read()
+            c = c.decode()
+
+            if enroll_rfid.available(c):
+                rfid_code = enroll_rfid.data
+                print(rfid_code)
+                Serial1.close()
+                return jsonify({'message': rfid_code}), 200
+    
 # Route to insert data into Users table
 @app.route('/sfac/add-user', methods=['POST'])
 def sfac_add_user():
@@ -334,11 +390,25 @@ def sfac_add_borrowed_book():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/sfac/detect_ports', methods=['GET'])
-def sfac_detect_ports():
-    ports = list(serial.tools.list_ports.comports())
-    port_list = [port.device for port in ports]
-    return jsonify({'available_ports': port_list})
+def loop_serial():
+    global rfid_code;
+    try:
+        enroll_rfid = Parser("Enroll ","\r",1,200)
+        Serial1 = HardwareSerial(PORT)
+        Serial1.begin(BAUD_RATE)
+        while True:
+            while Serial1.available():
+                c = Serial1.read()
+                c = c.decode()
+
+                if enroll_rfid.available(c):
+                    rfid_code = enroll_rfid.data
+                    print(rfid_code)
+    except:
+        pass
+
+    Serial1.close()
 
 if __name__ == '__main__':
+    Thread1 = Thread(target=loop_serial, daemon=True)
     app.run(debug=True)
