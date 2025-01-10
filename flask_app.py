@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 import sqlite3
-
+import serial.tools.list_ports
 
 app = Flask(__name__)
 extension = "./"
@@ -332,6 +332,13 @@ def sfac_add_borrowed_book():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/sfac/detect_ports', methods=['GET'])
+def sfac_detect_ports():
+    ports = list(serial.tools.list_ports.comports())
+    port_list = [port.device for port in ports]
+    return jsonify({'available_ports': port_list})
 
 if __name__ == '__main__':
     app.run(debug=True)
