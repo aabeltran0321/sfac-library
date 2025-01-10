@@ -38,18 +38,28 @@
                     <thead>
                         <tr>
                             <th>ID Number</th>
-                            <th>Name</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
                             <th>Email Address</th>
                             <th>RFID</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in table_data %}
                         <tr>
                             <td>{{ row.id_number }}</td>
-                            <td>{{ row.name }}</td>
+                            <td>{{ row.last_name }}</td>
+                            <td>{{ row.first_name }}</td>
+                            <td>{{ row.middle_name }}</td>
                             <td>{{ row.email }}</td>
                             <td>{{ row.rfid }}</td>
+                            <td>
+                                <button type="button" class="update-btn" 
+                                        onclick="populateModal('{{ row.id_number }}', '{{ row.last_name }}', '{{ row.first_name }}', '{{ row.middle_name }}', '{{ row.email }}', '{{ row.rfid }}')">Update</button>
+                                <button type="button" onclick="deleteUser('{{ row.id_number }}')" class="cancel-btn">Delete</button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -81,7 +91,7 @@
                 <label for="rfid">RFID</label>
                 <input type="text" id="rfid" placeholder="RFID" required>
             
-                <button type="submit" class="register-btn">Register</button>
+                <button type="submit" class="register-btn" id="agree-btn">Register</button>
                 <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
             </form>
             
@@ -90,17 +100,22 @@
 
 </body>
 <script>
+    const BASE_URL = './'; // Replace with your Flask app's URL
     const modal = document.getElementById('modal');
     const overlay = document.getElementById('overlay');
+    var isUpdate = 0;
 
     function openModal() {
         modal.style.display = 'block';
         overlay.style.display = 'block';
+        document.getElementById("agree-btn").textContent = "Register"
     }
 
     function closeModal() {
         modal.style.display = 'none';
         overlay.style.display = 'none';
+        document.getElementById('add-form').reset();
+        isUpdate = 0;
     }
 
     function addEntry(event) {
@@ -117,15 +132,32 @@
         const tableBody = document.getElementById('table-body');
         const row = document.createElement('tr');
 
-        row.innerHTML = `
-            <td>${idNumber}</td>
-            <td>${lname}, ${fname} ${mname}</td>
-            <td>${email}</td>
-            <td>${rfid}</td>
-        `;
 
-        tableBody.appendChild(row);
-        closeModal();
+        var userExample = {
+            id_number: idNumber,
+            last_name: lname,
+            first_name: fname,
+            middle_name: mname,
+            email: email,
+            rfid: rfid,
+        };
+
+        // row.innerHTML = `
+        //     <td>${idNumber}</td>
+        //     <td>${lname}, ${fname} ${mname}</td>
+        //     <td>${email}</td>
+        //     <td>${rfid}</td>
+        // `;
+
+        // tableBody.appendChild(row);
+        // closeModal();
+        if(isUpdate === 1){
+            sfacupdateUser(userExample);
+        }
+        else{
+            sfacAddUser(userExample);
+        }
+        
         document.getElementById('add-form').reset();
         
     }
@@ -148,6 +180,102 @@
             }
         });
     });
+    
 
+// Function to add a user
+async function sfacAddUser(userData) {
+    try {
+        const response = await fetch(`${BASE_URL}/add-user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            Alert('User added successfully:', result);
+            window.location.href = "./Students"
+        } else {
+            Alert('Error adding user:', result.error);
+        }
+    } catch (error) {
+        Alert('Error in sfacAddUser:', error);
+    }
+}
+
+
+// Populate Modal for Update
+function populateModal(idNumber, lastName, firstName, middleName, email, rfid) {
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    isUpdate = 1;
+    document.getElementById("agree-btn").textContent = "Update"
+
+    // Fill modal fields
+    document.getElementById('id-number').value = idNumber;
+    // const [lastName, firstName, middleName] = name.split(' '); // Assuming full name is "Last First Middle"
+    document.getElementById('last_name').value = lastName;
+    document.getElementById('first_name').value = firstName;
+    document.getElementById('middle_name').value = middleName;
+    document.getElementById('email').value = email;
+    document.getElementById('rfid').value = rfid;
+}
+
+
+ function sfacupdateUser(userExample) {
+    fetch('/sfac/update_user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userExample),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('User updated successfully!');
+            closeModal();
+            window.location.href = "./Students"
+        } else {
+            alert('Error updating user!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the user.');
+    });
+    
+}
+function deleteUser(idNumber) {
+    if (confirm("Do you want to delete this user?") == true) {
+        deleteNow(idNumber);
+    } 
+}
+function deleteNow(idNumber){
+    fetch('/sfac/delete_user', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id_number: idNumber })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('User deleted successfully!');
+            window.location.href = "./Students"
+        } else {
+            alert('Error deleting user!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the user.');
+    });
+}
 </script>
 </html>

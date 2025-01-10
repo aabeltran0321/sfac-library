@@ -38,23 +38,29 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Book Photo</th>
                             <th>RFID Code</th>
                             <th>Book ID</th>
                             <th>Book Title</th>
                             <th>Author</th>
                             <th>Genre</th>
                             <th>Publisher</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in book_data %}
                         <tr>
+                            <td><img src="../{{ row.book_path }}" height="100"></td>
                             <td>{{ row.rfid_code }}</td>
                             <td>{{ row.book_id }}</td>
                             <td>{{ row.book_title }}</td>
                             <td>{{ row.author }}</td>
                             <td>{{ row.genre }}</td>
                             <td>{{ row.publisher }}</td>
+                            <td>
+                                <button type="button" onclick="deleteBook('{{ row.book_id }}')" class="cancel-btn">Delete</button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -69,13 +75,13 @@
         <h3 style="font-size: 24px; text-align: center;"><i class="fa fa-user"></i>&nbsp;Book Enrollment</h3>
         <form id="add-form" onsubmit="addEntry(event)">
             <label for="rfid-code">RFID Code</label>
-            <input type="text" id="rfid-code" placeholder="RFID Code" required>
+            <input type="text" id="rfid_code" placeholder="RFID Code" required>
             
             <label for="book-id">Book ID</label>
-            <input type="text" id="book-id" placeholder="Book ID" required>
+            <input type="text" id="book_id" placeholder="Book ID" required>
             
             <label for="book-title">Book Title</label>
-            <input type="text" id="book-title" placeholder="Book Title" required>
+            <input type="text" id="book_title" placeholder="Book Title" required>
             
             <label for="author">Author</label>
             <input type="text" id="author" placeholder="Author" required>
@@ -87,7 +93,7 @@
             <input type="text" id="publisher" placeholder="Publisher" required>
             
             <label for="upload-photo">Upload Photo</label>
-            <input type="file" id="upload-photo" accept="image/*" required>
+            <input type="file" id="upload-photo" accept=".png, .jpg, .jpeg" required>
             
             <button type="submit" class="register-btn">Register</button>
             <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
@@ -113,32 +119,13 @@
     function addEntry(event) {
         event.preventDefault(); // Prevent form submission
 
-        // Get form values
-        const rfidCode = document.getElementById("rfid-code").value;
-        const bookId = document.getElementById("book-id").value;
-        const bookTitle = document.getElementById("book-title").value;
-        const author = document.getElementById("author").value;
-        const genre = document.getElementById("genre").value;
-        const publisher = document.getElementById("publisher").value;
-
-        // Reference the table
-        const table = document.getElementById("table-body"); // Replace 'book-table' with your table's ID
-
-        // Create a new row
-        const newRow = table.insertRow();
-
-        // Add cells to the new row and populate with form data
-        newRow.insertCell(0).textContent = rfidCode;
-        newRow.insertCell(1).textContent = bookId;
-        newRow.insertCell(2).textContent = bookTitle;
-        newRow.insertCell(3).textContent = author;
-        newRow.insertCell(4).textContent = genre;
-        newRow.insertCell(5).textContent = publisher;
+        addBook();
 
         // Optionally clear the form fields
         document.getElementById("add-form").reset();
         closeModal();
     }
+
     document.getElementById('search').addEventListener('keyup', function() {
         let searchTerm = this.value.toLowerCase();
         let rows = document.querySelectorAll('table tbody tr');
@@ -158,6 +145,62 @@
             }
         });
     });
+
+    function addBook() {
+        const formData = new FormData();
+        formData.append('rfid_code', document.getElementById('rfid_code').value);
+        formData.append('book_id', document.getElementById('book_id').value);
+        formData.append('book_title', document.getElementById('book_title').value);
+        formData.append('author', document.getElementById('author').value);
+        formData.append('genre', document.getElementById('genre').value);
+        formData.append('publisher', document.getElementById('publisher').value);
+        formData.append('book_photo', document.getElementById('upload-photo').files[0]);
+
+        fetch('/sfac/addBook', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                window.location.href = "./Books"
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    function deleteBook(idNumber) {
+        if (confirm("Do you want to delete this book?") == true) {
+            deleteNow(idNumber);
+        } 
+    }
+    function deleteNow(idNumber){
+        fetch('/sfac/delete_book', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ book_id: idNumber })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Book deleted successfully!');
+                window.location.href = "./Books"
+            } else {
+                alert('Error deleting Book!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the user.');
+        });
+    }
+
 
 </script>
 </html>

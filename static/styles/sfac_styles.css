@@ -132,8 +132,11 @@ header h2{
     margin-left: auto;
     margin-right: 10px;
 }
+.main-container{
+    width: 87vw;
+}
 .sidebar{
-    width: 15vw;
+    width: 13vw;
     background-color: #142234;
     margin-left: -10px;
     padding-top: 5px;
@@ -175,9 +178,7 @@ header h2{
     display: flex;
     margin-top: 12vh; 
 }
-.main-container{
-    width: 85vw;
-}
+
 .green {
     background-color: #7ed957;
 }
@@ -334,7 +335,7 @@ header h2{
 }
 
 .table-container{
-    width: 95%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     margin-top: -40px;
@@ -344,6 +345,7 @@ table {
     overflow-y: auto; 
     border-collapse: collapse;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2vh;
 }
 th, td {
     border: 1px solid #ddd;
@@ -429,6 +431,11 @@ button:hover {
     border-radius: 50px;
 }
 
+.update-btn{
+    background-color: #38b6ff;
+    color: #fef;
+    border-radius: 50px;
+}
 .cancel-btn{
     background-color: #eb1d25;
     color: #fef;
