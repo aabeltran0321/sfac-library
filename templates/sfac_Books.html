@@ -212,6 +212,7 @@ async function fetchUHFRfidCode() {
     document.getElementById("rfid_code").value = data.message;
   } catch (error) {
     alert('Cannot detect the RFID Scanner');
+    closeModal();
   }
 }
 

@@ -293,6 +293,7 @@ async function fetchRfidCode() {
     document.getElementById("rfid").value = data.message;
   } catch (error) {
     alert('Cannot detect the RFID Scanner');
+    closeModal();
   }
 }
 
