@@ -234,7 +234,7 @@ def sfac_get_rfid_code():
             c = c.decode()
 
             if enroll_rfid.available(c):
-                rfid_code = enroll_rfid.data
+                rfid_code = enroll_rfid.data.replace(" ", "")
                 print(rfid_code)
                 Serial1.close()
                 return jsonify({'message': rfid_code}), 200
