@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Transaction | SFAC Library</title>
+        <title>SFAC Library</title>
         <link rel="icon" href="../static/SFAC_logo.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,10 +86,84 @@
         .btnBig:hover{
             scale: 1.05;
         }
+        .Transactions{
+            font-size: 1.5vw;
+            border-radius: 50px;
+            border: 3px dotted black;
+            padding: 5px 30px;
+            margin-right: 10vw;
+            cursor: pointer;
+        }
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Modal container */
+        .modal {
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 50vw;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Exit button */
+        .exit-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .exit-button:hover {
+            background-color: darkred;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #eb9d28;
+            color: white;
+        }
+        tr{
+            background-color: white;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
     </style>
 <body>
     <img src="./static/dbkg.png" class="bkg">
     <div class="datetime">
+        <button class="Transactions" onclick="openModal()"> View Transactions </button>
         <i class="fa fa-calendar calendar" ></i>
         <div class="date" id="date">
             00/00/00<br>
@@ -98,7 +172,7 @@
             </div>
         </div>
     </div>
-    <button></button>
+    
     <div class="container">
         <div class="btnBig">
             <p class="btnCap">BORROW A BOOK</p>
@@ -114,6 +188,35 @@
     
     
 </body>
+<div class="modal-overlay" id="modal">
+        <div class="modal">
+            <!-- Exit button -->
+            <button class="exit-button" onclick="closeModal()">&#10006;</button>
+
+            <!-- Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book No</th>
+                        <th>Book Title</th>
+                        <th>Borrow Date/Time</th>
+                        <th>Return Date/Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Sample Book Title</td>
+                        <td>2025-01-14 10:00 AM</td>
+                        <td>2025-01-21 10:00 AM</td>
+                        <td>Borrowed</td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 <script>
     function updateDateTime() {
             const now = new Date();
@@ -137,5 +240,15 @@
 
         // Initialize immediately on page load
         updateDateTime();
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        function openModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';
+        }
     </script>
 </html>

@@ -54,23 +54,53 @@
             align-items: center;
             justify-content: center;
         }
-        .btnNext{
-            padding: 10px 2vw;
-            font-size: 2.5vh;
-            background-color: #00bf63;
+        .headers{
+            position: absolute;
+            display: flex;
+            width: 100%;
+            height: 10vh;
+            margin-top: 10vh ;
+        }
+        .title{
             color: white;
-            border: 3px solid white;
-            width: 10vw;
-            margin-left: 45vw;
-            margin-top: 70vh;
+            text-shadow: 2px 2px 4px gray;
+            font-size: 3vw;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 0;
+            text-align: center;
+        }
+        .select-container{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .selection{
+            height: 70vh;
+            margin-top: 23vh;
+            cursor: pointer;
+            
+        }
+        .selection:hover{
+            scale: 1.01;
+            rotate: -1deg;
+        }
+        .spacer{
+            margin-right: 5vw;
+        }
+        .back{
+            color: white;
+            text-shadow: 2px 2px 4px gray;
+            font-size: 3vw;
+            margin-left: 10px;
             cursor: pointer;
         }
-        .btnNext:hover{
-            scale: 1.1;
+        .back:hover{
+            color: #eb9d28;
         }
     </style>
 <body>
-    <img src="./static/dashboard.png" class="bkg">
+    <img src="./static/dbkg.png" class="bkg">
     <div class="datetime">
         <i class="fa fa-calendar calendar" ></i>
         <div class="date" id="date">
@@ -81,8 +111,18 @@
         </div>
         
     </div>
-
-    <button class="btnNext">NEXT</button>
+    <div class="headers">
+        <p><i class="fa back">&#xf060;</i></p>
+        <p class="title">CHOOSE A BOOK CATEGORY</p>
+    </div>
+    
+    <div class="select-container">
+        <img src="./static/romance.png" class="selection spacer">
+        <img src="./static/thriller.png" class="selection spacer">
+        <img src="./static/scientific.png" class="selection">
+        
+    </div>
+    
     
     
 </body>
