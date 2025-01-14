@@ -6,7 +6,7 @@ from serialport import HardwareSerial
 import os
 from werkzeug.utils import secure_filename
 
-PORT = "COM8"
+PORT = "COM12"
 BAUD_RATE = 115200
 
 app = Flask(__name__)

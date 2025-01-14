@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>SFAC Library</title>
-        <link rel="icon" href="../static/SFAC_logo.png">
+        <link rel="icon" href="./static/SFAC_logo.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -174,11 +174,11 @@
     </div>
     
     <div class="container">
-        <div class="btnBig">
+        <div class="btnBig" onclick="goTo('borrow');">
             <p class="btnCap">BORROW A BOOK</p>
             <img src="./static/borrow.png">
         </div>
-        <div class="btnBig space">
+        <div class="btnBig space" onclick="goTo('return');">
             <p class="btnCap">RETURN A BOOK</p>
             <img src="./static/return.png">
         </div>
@@ -249,6 +249,9 @@
         function openModal() {
             const modal = document.getElementById('modal');
             modal.style.display = 'flex';
+        }
+        function goTo(stats){
+            window.location.href = `/category?user_input=${stats}`;
         }
     </script>
 </html>

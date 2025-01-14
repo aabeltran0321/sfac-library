@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SFAC Library</title>
+        <link rel="icon" href="./static/SFAC_logo.png">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    </head>
+    <style>
+        html {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        }
+        body{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 100vw;
+            height: 100vh;
+        }
+        .bkg{
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin-top: -7px;
+            margin-left: -7px;
+            z-index: -6;
+        }
+        .date{
+            background-color: #eb9d28;
+            color: white;
+            font-size: 3.5vh;
+            text-align: center;
+        }
+        .time{
+            font-size: 2.5vh;
+        }
+        .calendar{
+            color: white;
+            font-size: 4vw;
+            margin-right: 10px;
+        }
+        .datetime{
+            position: fixed;
+            margin-top: 2vh;
+            right: 0;
+            top: 0;
+            display: flex;
+            padding-right: 1.5vw;
+            align-items: center;
+            justify-content: center;
+        }
+        .headers{
+            position: absolute;
+            display: flex;
+            width: 100%;
+            height: 10vh;
+            margin-top: 10vh ;
+        }
+        .title{
+            color: white;
+            text-shadow: 2px 2px 4px gray;
+            font-size: 2.25vw;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 0;
+            text-align: center;
+        }
+        .back{
+            color: white;
+            text-shadow: 2px 2px 4px gray;
+            font-size: 3vw;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .back:hover{
+            color: #eb9d28;
+        }
+        .row1{
+            position: absolute;
+            margin-top: 18vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            height: 33vh;
+        }
+        .row2{
+            position: absolute;
+            margin-top: 65vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            height: 33vh;
+        }
+        .choice{
+            height: 33vh;
+            margin-top: 23vh;
+            cursor: pointer;
+            margin-top: 0;
+        }
+        .choice:hover{
+            scale: 1.01;
+            rotate: -1deg;
+        }
+        .spacer{
+            margin-right: 15vw;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        /* Modal container */
+        .modal {
+            width: 60%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-color: #FFF;
+            display: flex;
+            height: 50vh;
+        }
+        .book-icon{
+            margin-left: 0px;
+            height: 100%;
+        }
+        .confirm-body{
+            display: block;
+            font-size: 1.5vw;
+            line-height: 2.5vw;
+        }
+        .confirm-body2{
+            display: block;
+            font-size: 1.1vw;
+            line-height: 2vw;
+        }
+        .answer{
+            display: flex;
+            width: 100%;
+            justify-content: center;
+        }
+        .btnAns{
+            font-size: 1.4vw;
+            color:#FFF;
+            padding: 5px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 4vh;
+        }
+        .green{
+            background-color: #00bf63;
+            margin-right: 20px;
+        }
+        .red{
+            background-color: #e5332a;
+        }
+        .btnAns:hover{
+            scale: 1.009;
+        }
+        .confirm-body h2{
+            font-size: 1.5vw;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+<body>
+    <img src="./static/selection.png" class="bkg">
+    <div class="datetime">
+        <i class="fa fa-calendar calendar" ></i>
+        <div class="date" id="date">
+            00/00/00<br>
+            <div class="time" id="time">
+                00:00
+            </div>
+        </div>
+        
+    </div>
+    <div class="headers">
+        <p onclick="window.location.href = '/category/'"><i class="fa back">&#xf060;</i></p>
+        <p class="title">{{user_input}} CATEGORY</p>
+    </div>
+
+    <div class="row1">
+        <img src="./static/romance.png" class="choice spacer" onclick="openModal();">
+        <img src="./static/romance.png" class="choice spacer">
+        <img src="./static/romance.png" class="choice">
+    </div>
+    
+    <div class="row2">
+        <img src="./static/romance.png" class="choice spacer">
+        <img src="./static/romance.png" class="choice">
+    </div>
+
+    
+    
+    
+</body>
+
+<div class="modal-overlay" id="modal-confirm">
+    <div class="modal">
+        <img src="./static/scientific.png" class="book-icon">
+        <div class="confirm-body">
+            <span>
+                <b>By borrowing this book, you must agree to these terms: </b><br>
+                <b>Duration:</b> Books must be returned within one day<br>
+                <b>Condition:</b> Keep books in good condition; damages may incur penalties.<br>
+                <b>Late Returns:</b> A late fee of 5 PHP applies for overdue books.<br>
+                <b>Loss/Damage:</b> Borrowers are responsible for replacement or repair costs.<br>
+                <b>Limits:</b> Only one book may be borrowed at a time.<br>
+            </span>
+
+            </span>
+            <div class="answer">
+                <button class="btnAns green" onclick="confirmAnswer();">Confirm</button>
+                <button class="btnAns red" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+        
+        
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-system">
+    <div class="modal">
+        <img src="./static/scientific.png" class="book-icon">
+        <div class="confirm-body2">
+            <h2>System Reminder</h2>
+            <ul>
+                <li>The system has successfully identified the book that matches your selected category.</li>
+                <li>A green light is now signaling its exact location on the shelf.</li>
+                <li>Please follow the light to return the book.</li> 
+                <li>Ensure the book is handled with care and returned on time according to the library's borrowing terms.</li>
+                <li>You will shortly receive a confirmation receipt in your email for returning a book.</li>
+                
+            </ul>
+            <p>Thank you for using the RFID bookshelf system to enhance your library experience!</p>
+            
+            <div class="answer">
+                <button class="btnAns green" onclick="closeModalSystem();">Finish</button>
+            </div>
+        </div>
+        
+        
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-return">
+    <div class="modal">
+        <img src="./static/scientific.png" class="book-icon">
+        <div class="confirm-body">
+            <span>
+                
+                <b>By returning this book, you must agree to these terms:</b> <br>
+                <b>Return Deadline: </b>Books must be returned on time.<br>
+                <b>Condition Check:</b> Returned books will be inspected for damages.<br>
+                <b>Late Returns:</b> Late fees of 5PHP apply for overdue books.<br>
+                <b>Damage/Loss:</b> Fees for repair or replacement will be charged if applicable.<br>
+                <b>Return Location:</b> Books must be returned to the right shelf.<br>
+                If not, it will signal a red light.
+
+            </span>
+
+            </span>
+            <div class="answer">
+                <button class="btnAns green" onclick="confirmAnswerReturn();">Confirm</button>
+                <button class="btnAns red" onclick="closeModalReturn()">Cancel</button>
+            </div>
+        </div>
+        
+        
+    </div>
+
+</div>
+<script>
+    function updateDateTime() {
+            const now = new Date();
+
+            // Format date as MM/DD/YYYY
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const day = String(now.getDate()).padStart(2, '0');
+            const year = now.getFullYear();
+            const date = `${month}/${day}/${year}`;
+
+            // Format time as HH:MM:SS
+            const time = now.toLocaleTimeString('en-US');
+
+            // Update HTML content
+            document.getElementById('date').firstChild.textContent = date + '\n';
+            document.getElementById('time').textContent = time;
+        }
+
+        // Update date and time every second
+        setInterval(updateDateTime, 1000);
+
+        // Initialize immediately on page load
+        updateDateTime();
+
+        function closeModal() {
+            const modal = document.getElementById('modal-confirm');
+            modal.style.display = 'none';
+        }
+
+        function openModal() {
+            const modal = document.getElementById('modal-confirm');
+            modal.style.display = 'flex';
+        }
+
+        function openModalSystem(){
+            const modal = document.getElementById('modal-system');
+            modal.style.display = 'flex';
+        }
+        function closeModalSystem(){
+            const modal = document.getElementById('modal-system');
+            modal.style.display = 'none';
+        }
+
+        function openModalReturn(){
+            const modal = document.getElementById('modal-return');
+            modal.style.display = 'flex';
+        }
+        function closeModalReturn(){
+            const modal = document.getElementById('modal-return');
+            modal.style.display = 'none';
+        }
+
+        function confirmAnswer(){
+            closeModal();
+            openModalSystem();
+        }
+        function confirmAnswerReturn(){
+            closeModalReturn();
+            openModalSystem();
+        }
+    </script>
+</html>

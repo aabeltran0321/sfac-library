@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>SFAC Library</title>
-        <link rel="icon" href="../static/SFAC_logo.png">
+        <link rel="icon" href="./static/SFAC_logo.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -54,65 +54,23 @@
             align-items: center;
             justify-content: center;
         }
-        .headers{
-            position: absolute;
-            display: flex;
-            width: 100%;
-            height: 10vh;
-            margin-top: 10vh ;
-        }
-        .title{
+        .btnNext{
+            padding: 10px 2vw;
+            font-size: 2.5vh;
+            background-color: #00bf63;
             color: white;
-            text-shadow: 2px 2px 4px gray;
-            font-size: 2.25vw;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 0;
-            text-align: center;
-        }
-        .back{
-            color: white;
-            text-shadow: 2px 2px 4px gray;
-            font-size: 3vw;
-            margin-left: 10px;
+            border: 3px solid white;
+            width: 10vw;
+            margin-left: 45vw;
+            margin-top: 70vh;
             cursor: pointer;
         }
-        .back:hover{
-            color: #eb9d28;
+        .btnNext:hover{
+            scale: 1.1;
         }
-        .row1{
-            position: absolute;
-            margin-top: 18vh;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            height: 33vh;
-        }
-        .row2{
-            position: absolute;
-            margin-top: 65vh;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            height: 33vh;
-        }
-        .choice{
-            height: 33vh;
-            margin-top: 23vh;
-            cursor: pointer;
-            margin-top: 0;
-        }
-        .choice:hover{
-            scale: 1.01;
-            rotate: -1deg;
-        }
-        .spacer{
-            margin-right: 10vw;
-        }
-        
     </style>
 <body>
-    <img src="./static/selection.png" class="bkg">
+    <img src="./static/dashboard.png" class="bkg">
     <div class="datetime">
         <i class="fa fa-calendar calendar" ></i>
         <div class="date" id="date">
@@ -123,23 +81,8 @@
         </div>
         
     </div>
-    <div class="headers">
-        <p><i class="fa back">&#xf060;</i></p>
-        <p class="title">ROMANCE CATEGORY</p>
-    </div>
 
-    <div class="row1">
-        <img src="./static/romance.png" class="choice spacer">
-        <img src="./static/romance.png" class="choice spacer">
-        <img src="./static/romance.png" class="choice">
-    </div>
-    
-    <div class="row2">
-        <img src="./static/romance.png" class="choice spacer">
-        <img src="./static/romance.png" class="choice">
-    </div>
-
-    
+    <button class="btnNext" onclick="goTo();">NEXT</button>
     
     
 </body>
@@ -166,5 +109,8 @@
 
         // Initialize immediately on page load
         updateDateTime();
+        function goTo(){
+            window.location.href = "/transaction";
+        }
     </script>
 </html>
