@@ -14,15 +14,16 @@ def transaction():
 
 @app.route('/selection')
 def selection():
-    user_input = request.args.get('user_input', None)  # Get the 'user_input' query parameter
-    print(user_input)
-    return render_template('selection.html', user_input=user_input.upper())
+    user_input = request.args.get('user_input', '')  # Get the 'user_input' query parameter
+    type1 = request.args.get('type', '') # Get the 'user_input' query parameter
+    print(type1)
+    return render_template('selection.html', user_input=user_input.upper(), type1 = type1)
 
 @app.route('/category')
 def category():
     user_input = request.args.get('user_input', None)  # Get the 'user_input' query parameter
-    print(user_input)
-    return render_template('category.html',user_input=user_input.upper())
+    
+    return render_template('category.html',user_input=user_input)
 
 # Form route
 @app.route('/form', methods=['GET', 'POST'])

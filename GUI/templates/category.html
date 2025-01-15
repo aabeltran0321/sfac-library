@@ -150,7 +150,7 @@
         // Initialize immediately on page load
         updateDateTime();
         function goTo(stats){
-            window.location.href = `/selection?user_input=${stats}`;
+            window.location.href = `/selection?user_input=${stats}&type={{ user_input }}`;
         }
     </script>
 </html>

@@ -188,7 +188,7 @@
         
     </div>
     <div class="headers">
-        <p onclick="window.location.href = '/category/'"><i class="fa back">&#xf060;</i></p>
+        <p onclick="window.location.href = '/category?user_input={{ type1 }}'"><i class="fa back">&#xf060;</i></p>
         <p class="title">{{user_input}} CATEGORY</p>
     </div>
 
@@ -326,6 +326,7 @@
         function closeModalSystem(){
             const modal = document.getElementById('modal-system');
             modal.style.display = 'none';
+            window.location.href = "/welcome"
         }
 
         function openModalReturn(){
@@ -344,6 +345,7 @@
         function confirmAnswerReturn(){
             closeModalReturn();
             openModalSystem();
+            
         }
     </script>
 </html>
