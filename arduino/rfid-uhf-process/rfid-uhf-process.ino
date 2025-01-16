@@ -137,7 +137,9 @@ void loop() {
 	mfrc522_process();
   led_process();
   if((millis()-prevMillis) > 1000){
-    uhf_rfid_process();
+    uhf_rfid_process1();
+    uhf_rfid_process2();
+    uhf_rfid_process3();
     prevMillis = millis();
   }
 
