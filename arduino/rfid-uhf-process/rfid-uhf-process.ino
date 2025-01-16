@@ -41,82 +41,26 @@ constexpr uint8_t SS_PIN = 53;         // Configurable, see typical pin layout a
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 
+#include <FastLED.h>
 
-//LED INIT
+// Configuration
+#define NUM_LEDS_PER_PIN 60   // Number of LEDs per strip
+#define BRIGHTNESS 200        // Brightness level (0-255)
+#define COLOR_ORDER GRB       // LED color order
+#define LED_TYPE WS2812B      // LED type (compatible with WS2815B)
 
-#include "FastLED.h"
+// Define pins for each strip
+#define PIN1 6
+#define PIN2 7
+#define PIN3 8
 
-/*************************************************
-   ANDROID AMBILIGHT APPLICATION ARDUINO SKETCH
+// Create separate LED arrays for each pin
+CRGB leds1[NUM_LEDS_PER_PIN]; // LEDs for Pin1
+CRGB leds2[NUM_LEDS_PER_PIN]; // LEDs for Pin2
+CRGB leds3[NUM_LEDS_PER_PIN]; // LEDs for Pin3
 
-   set following values to your needs
- *************************************************/
-
-#define INITIAL_LED_TEST_ENABLED true
-#define INITIAL_LED_TEST_BRIGHTNESS 16  // 0..255
-#define INITIAL_LED_TEST_TIME_MS 500  // 10..
-
-// Number of leds in your strip.
-// Tested with 500 leds and is fine (despite the warning)
-// We will use a maximum of 300
-#define MAX_LEDS 82
-
-// type of your led controller, possible values, see below
-#define LED_TYPE WS2812B 
-
-// 3 wire (pwm): NEOPIXEL BTM1829 TM1812 TM1809 TM1804 TM1803 UCS1903 UCS1903B UCS1904 UCS2903 WS2812 WS2852
-//               S2812B SK6812 SK6822 APA106 PL9823 WS2811 WS2813 APA104 WS2811_40 GW6205 GW6205_40 LPD1886 LPD1886_8BIT 
-// 4 wire (spi): LPD8806 WS2801 WS2803 SM16716 P9813 APA102 SK9822 DOTSTAR
-
-// For 3 wire led stripes line Neopixel/Ws2812, which have a data line, ground, and power, you just need to define DATA_PIN.
-// For led chipsets that are SPI based (four wires - data, clock, ground, and power), both defines DATA_PIN and CLOCK_PIN are needed
-
-// DATA_PIN, or DATA_PIN, CLOCK_PIN
-#define LED_PINS 6        // 3 wire leds
-//#define LED_PINS 6, 13  // 4 wire leds
-
-#define COLOR_ORDER GRB  // colororder of the stripe, set RGB in hyperion
-
-#define OFF_TIMEOUT 8000    // ms to switch off after no data was received, set 0 to deactivate
-
-#define BRIGHTNESS 255                      // maximum brightness 0-255
-#define DITHER_MODE BINARY_DITHER           // BINARY_DITHER or DISABLE_DITHER
-#define COLOR_TEMPERATURE CRGB(255,255,255) // RGB value describing the color temperature
-#define COLOR_CORRECTION  TypicalLEDStrip   // predefined fastled color correction
-//#define COLOR_CORRECTION  CRGB(255,255,255) // or RGB value describing the color correction
-
-// Baudrate, higher rate allows faster refresh rate and more LEDs
-#define BAUD_RATE 115200      // use 115200 for ftdi based boards
-
-
-/*************************************************
-   ANDROID AMBILIGHT APPLICATION ARDUINO SKETCH
-
-   no user changes needed
- *************************************************/
-
-// Adalight sends a "Magic Word" before sending the pixel data
-uint8_t prefix[] = {'A', 'd', 'a'}, hi, lo, chk, i;
-
-unsigned long endTime;
-
-// Define the array of leds
-CRGB leds[MAX_LEDS];
-
-// set color to all leds
-void showColor(const CRGB& led) {
-  #if MAX_LEDS > 1
-  LEDS.showColor(led);
-  #endif
-}
-
-// switch of leds
-void switchOff() {
-  #if MAX_LEDS > 1
-  memset(leds, 0, MAX_LEDS * sizeof(struct CRGB));
-  FastLED.show();
-  #endif
-}
+// Function prototypes
+void setColorForPin(int pinNumber, CRGB color);
 
 long prevMillis;
 
@@ -242,53 +186,91 @@ void mfrc522_process(){
 }
 
 void led_init(){
-  int ledCount = MAX_LEDS;
+  // Initialize FastLED for each pin
+  FastLED.addLeds<LED_TYPE, PIN1, COLOR_ORDER>(leds1, NUM_LEDS_PER_PIN).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, PIN2, COLOR_ORDER>(leds2, NUM_LEDS_PER_PIN).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, PIN3, COLOR_ORDER>(leds3, NUM_LEDS_PER_PIN).setCorrection(TypicalLEDStrip);
 
-  #if MAX_LEDS > 1
-    FastLED.addLeds<LED_TYPE, LED_PINS, COLOR_ORDER>(leds, ledCount);
-  #endif
-  
-  // color adjustments
-  FastLED.setBrightness ( BRIGHTNESS );
-  FastLED.setTemperature( COLOR_TEMPERATURE );
-  FastLED.setCorrection ( COLOR_CORRECTION );
-  FastLED.setDither     ( DITHER_MODE );
+  // Set brightness
+  FastLED.setBrightness(BRIGHTNESS);
 
-  // initial RGB flash
-  #if INITIAL_LED_TEST_ENABLED == true
-  for (int v=0;v<INITIAL_LED_TEST_BRIGHTNESS;v++)
-  {
-    showColor(CRGB(255,0,0));  
-    delay(INITIAL_LED_TEST_TIME_MS/2/INITIAL_LED_TEST_BRIGHTNESS);
+  // Start with all LEDs off
+  FastLED.clear();
+  FastLED.show();
+
+}
+void led_process(){
+  if (Serial.available() > 0) {
+    // Read the serial input
+    String input = Serial.readStringUntil('?');
+    input.trim(); // Remove any whitespace or newline characters
+
+    // Validate and process the input
+    if (input.length() == 2) {
+      char colorCode = input[0]; // First character: color (r, g, b)
+      char pinNumber = input[1]; // Second character: pin number (1, 2, 3)
+
+      // Determine the color
+      CRGB color;
+      switch (colorCode) {
+        case 'r':
+          color = CRGB::Green;
+          break;
+        case 'g':
+          color = CRGB::Red;
+          break;
+        case 'b':
+          color = CRGB::Blue;
+          break;
+        case 'x':
+          color = CRGB::Black;
+          break;
+        default:
+          Serial.println("Invalid color code. Use r, g, or b.");
+          return;
+      }
+
+      // Set the color for the specified pin
+      if (pinNumber >= '1' && pinNumber <= '3') {
+        int pinIndex = pinNumber - '1'; // Convert character to index (0-2)
+        setColorForPin(pinIndex, color);
+        Serial.print("Set color ");
+        Serial.print(colorCode);
+        Serial.print(" for pin ");
+        Serial.println(pinNumber);
+      } else {
+        Serial.println("Invalid pin number. Use 1, 2, or 3.");
+      }
+    } else {
+      Serial.println("Invalid command. Use format r1, g2, b3.");
+    }
   }
-  for (int v=0;v<INITIAL_LED_TEST_BRIGHTNESS;v++)
-  {
-    showColor(CRGB(0,255,0));  
-    delay(INITIAL_LED_TEST_TIME_MS/2/INITIAL_LED_TEST_BRIGHTNESS);
-  }
-  for (int v=0;v<INITIAL_LED_TEST_BRIGHTNESS;v++)
-  {
-    showColor(CRGB(0,0,255));  
-    delay(INITIAL_LED_TEST_TIME_MS/2/INITIAL_LED_TEST_BRIGHTNESS);
-  }
-  #endif
-  showColor(CRGB(0, 0, 0));
 }
 
-void led_process(){
-  while(Serial.available()){
-    char c = Serial.read();
-    if (c == 'r'){
-      showColor(CRGB(0,255,0));  
-    }
-    if (c == 'g'){
-      showColor(CRGB(255,0,0));  
-    }
-    if (c == 'b'){
-      showColor(CRGB(0,0,255));  
-    }
-    if (c == 'x'){
-      showColor(CRGB(0,0,0));  
-    }
+// Set color for a specific pin
+void setColorForPin(int pinIndex, CRGB color) {
+  CRGB *ledArray;
+
+  // Select the correct LED array based on the pin index
+  switch (pinIndex) {
+    case 0:
+      ledArray = leds1;
+      break;
+    case 1:
+      ledArray = leds2;
+      break;
+    case 2:
+      ledArray = leds3;
+      break;
+    default:
+      return; // Invalid pin index
   }
+
+  // Set all LEDs in the selected array to the specified color
+  for (int i = 0; i < NUM_LEDS_PER_PIN; i++) {
+    ledArray[i] = color;
+  }
+
+  // Update the LEDs
+  FastLED.show();
 }
