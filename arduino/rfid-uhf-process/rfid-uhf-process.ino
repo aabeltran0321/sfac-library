@@ -40,9 +40,13 @@ constexpr uint8_t RST_PIN = 48;          // Configurable, see typical pin layout
 constexpr uint8_t SS_PIN = 53;         // Configurable, see typical pin layout above
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
-
+long prevMillis;
 void setup() {
 	Serial.begin(115200);		// Initialize serial communications with the PC
+  Serial1.begin(115200);
+  Serial2.begin(115200);
+  Serial3.begin(115200);
+
 	while (!Serial);		// Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4)
 	SPI.begin();			// Init SPI bus
 	mfrc522.PCD_Init();		// Init MFRC522
@@ -51,7 +55,18 @@ void setup() {
 }
 
 void loop() {
-	if (mfrc522.PICC_IsNewCardPresent()) {
+	mfrc522_process();
+  if((millis()-prevMillis) > 1000){
+    uhf_rfid_process1();
+    uhf_rfid_process2();
+    uhf_rfid_process3();
+    prevMillis = millis();
+  }
+
+}
+
+void mfrc522_process(){
+  if (mfrc522.PICC_IsNewCardPresent()) {
     if (mfrc522.PICC_ReadCardSerial()) {
       Serial.print("PROCESS");
       byte scannedUID[4]; // Store the scanned UID
@@ -63,5 +78,87 @@ void loop() {
       Serial.println();
     }
 	}
+}
 
+
+void uhf_rfid_process1(){
+  // Define the data to send
+  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+  int dataSize = sizeof(data);
+
+  // Send the data to Serial1
+  Serial1.write(data, dataSize);
+
+  // Wait for a response
+  delay(100); // Allow time for the response
+
+  // Collect and print the response as a hex string
+  if (Serial1.available() > 0) {
+    String response = ""; // Initialize an empty string to store the response
+    while (Serial1.available() > 0) {
+      byte responseByte = Serial1.read();
+      
+      if (responseByte < 0x10) response += "0"; // Add leading zero if necessary
+      response += String(responseByte, HEX);   // Convert to hex and append
+      response += " ";                         // Add space between hex values
+    }
+    response.trim();                           // Remove trailing space
+    Serial.print("uhf1-");
+    Serial.println(response);                  // Print the response as a single string
+  }
+}
+
+void uhf_rfid_process2(){
+  // Define the data to send
+  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+  int dataSize = sizeof(data);
+
+  // Send the data to Serial1
+  Serial2.write(data, dataSize);
+
+  // Wait for a response
+  delay(100); // Allow time for the response
+
+  // Collect and print the response as a hex string
+  if (Serial2.available() > 0) {
+    String response = ""; // Initialize an empty string to store the response
+    while (Serial2.available() > 0) {
+      byte responseByte = Serial2.read();
+      
+      if (responseByte < 0x10) response += "0"; // Add leading zero if necessary
+      response += String(responseByte, HEX);   // Convert to hex and append
+      response += " ";                         // Add space between hex values
+    }
+    response.trim();                           // Remove trailing space
+    Serial.print("uhf2-");
+    Serial.println(response);                  // Print the response as a single string
+  }
+}
+
+
+void uhf_rfid_process3(){
+  // Define the data to send
+  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+  int dataSize = sizeof(data);
+
+  // Send the data to Serial1
+  Serial3.write(data, dataSize);
+
+  // Wait for a response
+  delay(100); // Allow time for the response
+
+  // Collect and print the response as a hex string
+  if (Serial3.available() > 0) {
+    String response = ""; // Initialize an empty string to store the response
+    while (Serial3.available() > 0) {
+      byte responseByte = Serial3.read();
+      
+      if (responseByte < 0x10) response += "0"; // Add leading zero if necessary
+      response += String(responseByte, HEX);   // Convert to hex and append
+      response += " ";                         // Add space between hex values
+    }
+    response.trim();                           // Remove trailing space
+    Serial.print("uhf3-");
+    Serial.println(response);                  // Print the response as a single string
+  }
 }
