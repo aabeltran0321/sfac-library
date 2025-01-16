@@ -118,6 +118,7 @@ void switchOff() {
   #endif
 }
 
+long prevMillis;
 
 void setup() {
 	Serial.begin(115200);		// Initialize serial communications with the PC
