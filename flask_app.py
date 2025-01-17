@@ -7,6 +7,7 @@ import os
 from werkzeug.utils import secure_filename
 import requests
 from config import *
+from check_ip_address import find_server_on_network
 
 Serial1 = HardwareSerial(PORT)
 
@@ -16,7 +17,7 @@ extension = "./"
 
 rfid_code = ""
 
-
+RPI_IP_ADDRESS = find_server_on_network()
 
 
 @app.route('/sfac/dashboard')
@@ -152,25 +153,7 @@ def sfac_get_uhf_rfid_code():
 
 
 
-def loop_serial():
-    global rfid_code;
-    try:
-        enroll_rfid = Parser("Enroll ","\r",1,200)
-        Serial1 = HardwareSerial(PORT)
-        Serial1.begin(BAUD_RATE)
-        while True:
-            while Serial1.available():
-                c = Serial1.read()
-                c = c.decode()
 
-                if enroll_rfid.available(c):
-                    rfid_code = enroll_rfid.data
-                    print(rfid_code)
-    except:
-        pass
-
-    Serial1.close()
 
 if __name__ == '__main__':
-    Thread1 = Thread(target=loop_serial, daemon=True)
     app.run(debug=True)

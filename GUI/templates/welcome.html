@@ -55,6 +55,7 @@
             justify-content: center;
         }
         .btnNext{
+            position: absolute;
             padding: 10px 2vw;
             font-size: 2.5vh;
             background-color: #00bf63;
@@ -64,6 +65,8 @@
             margin-left: 45vw;
             margin-top: 70vh;
             cursor: pointer;
+            display: none;
+            text-align: center;
         }
         .btnNext:hover{
             scale: 1.1;
@@ -82,7 +85,7 @@
         
     </div>
 
-    <button class="btnNext" onclick="goTo();">NEXT</button>
+    <button class="btnNext" id = "next" onclick="goTo();">NEXT</button>
     
     
 </body>
@@ -112,5 +115,21 @@
         function goTo(){
             window.location.href = "/transaction";
         }
+        async function fetchRfidCode() {
+            try {
+                const response = await fetch('/sfac/get_rfid_code');
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log(`data: ${data}`);
+                document.getElementById("next").style.display = "flex";
+            } catch (error) {
+                alert('Cannot detect the RFID Scanner');
+                closeModal();
+            }
+        }
+        fetchRfidCode();
+
     </script>
 </html>

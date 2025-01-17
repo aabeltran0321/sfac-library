@@ -98,9 +98,12 @@
         }
         .choice{
             height: 33vh;
+            width: 10vw;
             margin-top: 23vh;
             cursor: pointer;
             margin-top: 0;
+            object-fit: contain;
+            background-color: white;
         }
         .choice:hover{
             scale: 1.01;
@@ -135,6 +138,8 @@
         .book-icon{
             margin-left: 0px;
             height: 100%;
+            width: 30%;
+            object-fit: contain;
         }
         .confirm-body{
             display: block;
@@ -193,14 +198,15 @@
     </div>
 
     <div class="row1">
-        <img src="./static/romance.png" class="choice spacer" onclick="openModal();">
-        <img src="./static/romance.png" class="choice spacer">
-        <img src="./static/romance.png" class="choice">
+        {% for book in books[:3] %}
+            <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+        {% endfor %}
     </div>
     
     <div class="row2">
-        <img src="./static/romance.png" class="choice spacer">
-        <img src="./static/romance.png" class="choice">
+        {% for book in books[3:5] %}
+            <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+        {% endfor %}
     </div>
 
     
@@ -210,7 +216,7 @@
 
 <div class="modal-overlay" id="modal-confirm">
     <div class="modal">
-        <img src="./static/scientific.png" class="book-icon">
+        <img src="./static/scientific.png" class="book-icon" id = "book-icon">
         <div class="confirm-body">
             <span>
                 <b>By borrowing this book, you must agree to these terms: </b><br>
@@ -235,7 +241,7 @@
 
 <div class="modal-overlay" id="modal-system">
     <div class="modal">
-        <img src="./static/scientific.png" class="book-icon">
+        <img src="./static/scientific.png" class="book-icon" >
         <div class="confirm-body2">
             <h2>System Reminder</h2>
             <ul>
@@ -260,7 +266,7 @@
 
 <div class="modal-overlay" id="modal-return">
     <div class="modal">
-        <img src="./static/scientific.png" class="book-icon">
+        <img src="./static/scientific.png" class="book-icon" >
         <div class="confirm-body">
             <span>
                 
@@ -314,9 +320,12 @@
             modal.style.display = 'none';
         }
 
-        function openModal() {
+        function openModal(src1) {
             const modal = document.getElementById('modal-confirm');
             modal.style.display = 'flex';
+            const imgElement = document.getElementById("book-icon");
+            imgElement.src = src1; // Change to the new image URL
+
         }
 
         function openModalSystem(){

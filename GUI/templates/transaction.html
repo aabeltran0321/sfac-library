@@ -159,6 +159,18 @@
         tr:hover {
             background-color: #f9f9f9;
         }
+        .back{
+            position: absolute;
+            margin-top: 15vh;
+            color: white;
+            text-shadow: 2px 2px 4px gray;
+            font-size: 3vw;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .back:hover{
+            color: #eb9d28;
+        }
     </style>
 <body>
     <img src="./static/dbkg.png" class="bkg">
@@ -172,7 +184,7 @@
             </div>
         </div>
     </div>
-    
+    <p onclick="window.location.href = '/welcome'"><i class="fa back">&#xf060;</i></p>
     <div class="container">
         <div class="btnBig" onclick="goTo('borrow');">
             <p class="btnCap">BORROW A BOOK</p>

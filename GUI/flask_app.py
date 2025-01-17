@@ -2,10 +2,14 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 import sqlite3
 from flask_cors import CORS
+from Parser_WTA import Parser
+from serialport import HardwareSerial
 
 app = Flask(__name__)
 CORS(app)
 
+PORT = "COM22"
+Serial1 = HardwareSerial(PORT)
 extension = "./"
 SFAC_DATABASE = f'{extension}sfac_library.db'
 
@@ -22,7 +26,9 @@ def sfac_get_db_connection():
     conn = sqlite3.connect(SFAC_DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
-
+@app.route('/')
+def index():
+    return "SFAC-LIBRARY"
 
 @app.route('/sfac/getnumdata')
 def getnumdata():
@@ -317,6 +323,12 @@ def sfac_delete_book():
 # Home route
 @app.route('/welcome')
 def welcome():
+    global Serial1
+
+    try:
+        Serial1.close()
+    except:
+        pass
     return render_template('welcome.html')
 
 @app.route('/transaction')
@@ -326,11 +338,31 @@ def transaction():
 
 @app.route('/selection')
 def selection():
-    user_input = request.args.get('user_input', '')  # Get the 'user_input' query parameter
-    type1 = request.args.get('type', '') # Get the 'user_input' query parameter
-    print(type1)
-    return render_template('selection.html', user_input=user_input.upper(), type1 = type1)
+    genre = request.args.get('user_input', '')  # Get the 'user_input' query parameter
+    type1 = request.args.get('type', '')            # Get the 'type' query parameter
 
+    conn = sqlite3.connect(SFAC_DATABASE)
+    cursor = conn.cursor()
+
+    if genre:  # If a genre is specified, filter by genre
+        cursor.execute('''
+            SELECT * FROM Books WHERE genre = ?
+        ''', (genre.capitalize(),))
+    else:  # If no genre is specified, select all books
+        cursor.execute('''
+            SELECT * FROM Books
+        ''')
+
+    books = cursor.fetchall()  # Fetch the filtered or full list of books
+    conn.close()
+    print(books)
+    return render_template(
+        'selection.html',
+        user_input=genre.upper(),
+        type1=type1,
+        genre=genre,
+        books=books
+    )
 @app.route('/category')
 def category():
     user_input = request.args.get('user_input', None)  # Get the 'user_input' query parameter
@@ -346,8 +378,61 @@ def form():
         return render_template('form_response.html', name=name, message=message)
     return render_template('form.html')
 
+@app.route('/sfac/get_rfid_code')
+def sfac_get_rfid_code():
+    global Serial1
+    enroll_rfid = Parser("PROCESS ","\r",1,200)
+    try:
+        Serial1.begin(115200)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
+    while True:
+        while Serial1.available():
+            c = Serial1.read()
+            c = c.decode()
 
+            if enroll_rfid.available(c):
+                rfid_code = enroll_rfid.data.replace(" ", "")
+                print(rfid_code)
+                user = get_user_by_rfid(rfid_code)
+                print(user)
+                if len(user.keys())>1:
+                    Serial1.close()
+                    return jsonify(user)
+                
+
+def get_user_by_rfid(rfid):
+    # Establish database connection
+    conn = sfac_get_db_connection()
+    cursor = conn.cursor()
+    
+    # Execute query to select user by RFID
+    cursor.execute('''
+        SELECT id_number, last_name, first_name, middle_name, email, rfid
+        FROM Users
+        WHERE rfid = ?
+    ''', (rfid,))
+    
+    # Fetch the result
+    user = cursor.fetchone()
+    
+    # Close the connection
+    conn.close()
+    
+    # If user is found, return JSON; else return a message
+    if user:
+        user_data = {
+            "id_number": user[0],
+            "last_name": user[1],
+            "first_name": user[2],
+            "middle_name": user[3],
+            "email": user[4],
+            "rfid": user[5]
+        }
+        return user_data
+    else:
+        return {"message": "User not found"}
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=8000)
