@@ -8,7 +8,7 @@ from serialport import HardwareSerial
 app = Flask(__name__)
 CORS(app)
 
-PORT = "COM22"
+PORT = "/dev/ttyACM0"
 Serial1 = HardwareSerial(PORT)
 extension = "./"
 SFAC_DATABASE = f'{extension}sfac_library.db'
@@ -295,6 +295,7 @@ def sfac_add_book():
 
         return jsonify({'status': 'success', 'message': 'Book added successfully'}), 201
     except Exception as e:
+        print(e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 

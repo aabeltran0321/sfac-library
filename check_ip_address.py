@@ -20,7 +20,7 @@ def find_server_on_network(port=8000):
         ip = f"{gateway_subnet}.{i}"
         url = f"http://{ip}:{port}"
         try:
-            response = requests.get(url, timeout=0.5)
+            response = requests.get(url, timeout=0.2)
             if response.status_code == 200:
                 print(f"Server found at {url}")
                 return url  # Return the correct IP and port

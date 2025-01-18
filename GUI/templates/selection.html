@@ -199,15 +199,24 @@
 
     <div class="row1">
         {% for book in books[:3] %}
-            <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+            {% if loop.index <= 2 %}
+                <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+            {% else %}
+                <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice" onclick="openModal('{{ book[6] }}');">
+            {% endif %}
         {% endfor %}
     </div>
     
     <div class="row2">
         {% for book in books[3:5] %}
-            <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+            {% if loop.first %}
+                <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice spacer" onclick="openModal('{{ book[6] }}');">
+            {% else %}
+                <img src="{{ book[6] }}" alt="{{ book[2] }}" class="choice" onclick="openModal('{{ book[6] }}');">
+            {% endif %}
         {% endfor %}
     </div>
+    
 
     
     

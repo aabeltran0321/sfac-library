@@ -173,13 +173,15 @@
         .then(data => {
             if (data.status === 'success') {
                 alert(data.message);
-                window.location.href = "./books"
+                window.location.href = "./books";
             } else {
                 alert('Error: ' + data.message);
+                window.location.href = "./books";
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            //alert(`Error: ${error}`);
+            window.location.href = "./books";
         });
     }
     function deleteBook(idNumber) {

@@ -17,7 +17,7 @@ extension = "./"
 
 rfid_code = ""
 
-RPI_IP_ADDRESS = find_server_on_network()
+#RPI_IP_ADDRESS = find_server_on_network()
 
 
 @app.route('/sfac/dashboard')

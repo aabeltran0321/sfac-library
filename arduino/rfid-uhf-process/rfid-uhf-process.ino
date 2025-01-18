@@ -44,7 +44,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 #include <FastLED.h>
 
 // Configuration
-#define NUM_LEDS_PER_PIN 60   // Number of LEDs per strip
+#define NUM_LEDS_PER_PIN 15   // Number of LEDs per strip
 #define BRIGHTNESS 200        // Brightness level (0-255)
 #define COLOR_ORDER GRB       // LED color order
 #define LED_TYPE WS2812B      // LED type (compatible with WS2815B)
