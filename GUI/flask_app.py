@@ -4,14 +4,18 @@ import sqlite3
 from flask_cors import CORS
 from Parser_WTA import Parser
 from serialport import HardwareSerial
-
+from check_serial_ports import list_serial_ports
 app = Flask(__name__)
 CORS(app)
 
-PORT = "/dev/ttyACM0"
+PORT = list_serial_ports()
 Serial1 = HardwareSerial(PORT)
 extension = "./"
 SFAC_DATABASE = f'{extension}sfac_library.db'
+if PORT is None:
+    print("No Serial Port Detected!")
+    exit()
+print(PORT)
 
 UPLOAD_FOLDER = 'static/sfac_uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
