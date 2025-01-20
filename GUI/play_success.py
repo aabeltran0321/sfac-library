@@ -1,7 +1,13 @@
 # import required module
 import os
+from playsound import playsound
 
-# play sound
-file = "success-221935.mp3"
-print('playing sound using native player')
-os.system(f"afplay {file} -t 1.8")
+def play():
+    # play sound
+    file = "mixkit-game-success-alert-2039.wav"
+    # print('playing sound using native player')
+    # os.system(f"afplay {file} -t 1.8")
+
+    # for playing note.wav file
+    playsound(file)
+    print('playing sound using  playsound')

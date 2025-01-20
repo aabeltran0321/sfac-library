@@ -56,7 +56,7 @@
         }
         .btnNext{
             position: absolute;
-            padding: 10px 2vw;
+            padding: 10px;
             font-size: 2.5vh;
             background-color: #00bf63;
             color: white;
@@ -66,7 +66,6 @@
             margin-top: 70vh;
             cursor: pointer;
             display: none;
-            text-align: center;
         }
         .btnNext:hover{
             scale: 1.1;
@@ -90,6 +89,7 @@
     
 </body>
 <script>
+    var stats;
     function updateDateTime() {
             const now = new Date();
 
@@ -113,7 +113,7 @@
         // Initialize immediately on page load
         updateDateTime();
         function goTo(){
-            window.location.href = "/transaction";
+            window.location.href = `/transaction?user_id=${stats}`;
         }
         async function fetchRfidCode() {
             try {
@@ -122,8 +122,9 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                console.log(`data: ${data}`);
-                document.getElementById("next").style.display = "flex";
+                console.log(`data: ${data.message}`);
+                stats = data.message;
+                document.getElementById("next").style.display = "block";
             } catch (error) {
                 alert('Cannot detect the RFID Scanner');
                 closeModal();

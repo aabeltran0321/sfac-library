@@ -112,7 +112,7 @@
         
     </div>
     <div class="headers">
-        <p><i class="fa back" onclick="window.location = '/transaction';">&#xf060;</i></p>
+        <p><i class="fa back" onclick="window.location = '/transaction?user_id={{user_id}}';">&#xf060;</i></p>
         <p class="title">CHOOSE A BOOK CATEGORY</p>
     </div>
     
@@ -150,7 +150,7 @@
         // Initialize immediately on page load
         updateDateTime();
         function goTo(stats){
-            window.location.href = `/selection?user_input=${stats}&type={{ user_input }}`;
+            window.location.href = `/selection?user_input=${stats}&type={{ user_input }}&user_id={{ user_id }}`;
         }
     </script>
 </html>

@@ -26,7 +26,7 @@
             width: 100vw;
             height: 100vh;
             padding: 0;
-            margin-top: -7px;
+            margin-top: -15px;
             margin-left: -7px;
             z-index: -6;
         }
@@ -113,9 +113,11 @@
             padding: 20px;
             border-radius: 8px;
             width: 80%;
-            max-width: 50vw;
+            max-width: 80vw;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: relative;
+            max-height: 50vh;
+            overflow-y: auto;
         }
 
         /* Exit button */
@@ -141,6 +143,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 2.5vh;
         }
 
         th, td {
@@ -186,14 +189,27 @@
     </div>
     <p onclick="window.location.href = '/welcome'"><i class="fa back">&#xf060;</i></p>
     <div class="container">
-        <div class="btnBig" onclick="goTo('borrow');">
-            <p class="btnCap">BORROW A BOOK</p>
-            <img src="./static/borrow.png">
-        </div>
-        <div class="btnBig space" onclick="goTo('return');">
-            <p class="btnCap">RETURN A BOOK</p>
-            <img src="./static/return.png">
-        </div>
+        {% if isBorrowed %}
+            <div class="btnBig" onclick="alert('You have pending borrowed book. Please view your transactions');">
+                <p class="btnCap">BORROW A BOOK</p>
+                <img src="./static/borrow.png">
+            </div>
+            <div class="btnBig space" onclick="goTo('return');">
+                <p class="btnCap">RETURN A BOOK</p>
+                <img src="./static/return.png">
+            </div>
+        {% else %}
+            <div class="btnBig" onclick="goTo('borrow');">
+                <p class="btnCap">BORROW A BOOK</p>
+                <img src="./static/borrow.png">
+            </div>
+            <div class="btnBig space" onclick="alert('You need to borrow a book first. Please view your transactions');">
+                <p class="btnCap">RETURN A BOOK</p>
+                <img src="./static/return.png">
+            </div>
+        {% endif %}
+        
+        
 
 
     </div>
@@ -209,22 +225,30 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Book No</th>
+                        <th>Transaction ID</th>
+                        <th>ID Number</th>
+                        <th>Name</th>
+                        <th>Book ID</th>
                         <th>Book Title</th>
-                        <th>Borrow Date/Time</th>
-                        <th>Return Date/Time</th>
+                        <th>Borrow Date</th>
+                        <th>Return Date</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for row in transaction_data %}
                     <tr>
-                        <td>1</td>
-                        <td>Sample Book Title</td>
-                        <td>2025-01-14 10:00 AM</td>
-                        <td>2025-01-21 10:00 AM</td>
-                        <td>Borrowed</td>
+                        <td>{{ row.transaction_id }}</td>
+                        <td>{{ row.id_no }}</td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.book_id }}</td>
+                        <td>{{ row.book_title }}</td>
+                        <td>{{ row.borrow_date }}</td>
+                        <td>{{ row.return_date }}</td>
+                        <td>{{ row.status }}</td>
                     </tr>
-                    <!-- Add more rows as needed -->
+                    
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -263,7 +287,14 @@
             modal.style.display = 'flex';
         }
         function goTo(stats){
-            window.location.href = `/category?user_input=${stats}`;
+            if (stats != "return"){
+                window.location.href = `/category?user_input=${stats}&user_id={{ user_id }}`;
+            }
+            else{
+                var lastData = {{ transaction_data | safe }};
+                window.location.href = `/selection?user_input=${lastData[lastData.length - 1]["book_title"]}&type=${stats}&user_id={{ user_id }}&transaction=${lastData[lastData.length - 1]["transaction_id"]}`;
+            }
+            
         }
     </script>
 </html>

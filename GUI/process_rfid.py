@@ -1,6 +1,8 @@
 import json
 import time
 from serialport import HardwareSerial
+import play_error
+import play_success
 # Load the initial JSON data
 def load_json(file_path):
     with open(file_path, 'r') as file:
@@ -26,7 +28,7 @@ def borrow_rfid(json_file, removed_rfid, expected_genre, PORT):
             
 
             if removed_rfid not in current_data[expected_genre]:
-                import play_success
+                play_success.play()
                 print("Success!")
                 Serial1.prints("x1?x2?x3?")
                 Serial1.close()
@@ -35,7 +37,7 @@ def borrow_rfid(json_file, removed_rfid, expected_genre, PORT):
                 for k1 in current_data.keys():
                     if len(current_data[k1]) != len(initial_json[k1]):
                         Serial1.prints(f"r{cabinets[k1]}?")
-                        import play_error
+                        play_error.play()
                         Serial1.prints(f"x{cabinets[k1]}?")
         except Exception as e:
             print(e)
@@ -57,7 +59,7 @@ def return_rfid(json_file, returned_rfid, expected_genre, PORT):
             Serial1.prints(f"g{cabinets[expected_genre]}?")
 
             if returned_rfid in current_data[expected_genre]:
-                import play_success
+                play_success.play()
                 print("Success!")
                 Serial1.prints("x1?x2?x3?")
                 return
@@ -65,7 +67,7 @@ def return_rfid(json_file, returned_rfid, expected_genre, PORT):
                 for k1 in current_data.keys():
                     if returned_rfid in current_data[k1]:
                         Serial1.prints(f"r{cabinets[k1]}?")
-                        import play_error
+                        play_error.play()
                         Serial1.prints(f"x{cabinets[k1]}?")
         except Exception as e:
             print(e)
