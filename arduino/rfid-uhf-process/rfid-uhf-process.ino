@@ -75,12 +75,19 @@ void setup() {
 	mfrc522.PCD_DumpVersionToSerial();	// Show details of PCD - MFRC522 Card Reader details
 	Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
   led_init();
+  byte byteArray[] = { 0xBB, 0x00, 0xB6, 0x00, 0x02, 0x07, 0xD0, 0x8F, 0x7E };
+  int dataSize = sizeof(byteArray);
+
+  // Send the data to Serial1
+  Serial1.write(byteArray, dataSize);
+  Serial2.write(byteArray, dataSize);
+  Serial3.write(byteArray, dataSize);
 }
 
 void loop() {
 	mfrc522_process();
   led_process();
-  if((millis()-prevMillis) > 1000){
+  if((millis()-prevMillis) > 500){
     uhf_rfid_process1();
     uhf_rfid_process2();
     uhf_rfid_process3();
@@ -91,7 +98,9 @@ void loop() {
 
 void uhf_rfid_process1(){
   // Define the data to send
-  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+//    byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+
+  byte data[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
   int dataSize = sizeof(data);
 
   // Send the data to Serial1
@@ -100,9 +109,7 @@ void uhf_rfid_process1(){
   // Wait for a response
   delay(100); // Allow time for the response
 
-  // Collect and print the response as a hex string
-  if (Serial1.available() > 0) {
-    String response = ""; // Initialize an empty string to store the response
+  String response = ""; // Initialize an empty string to store the response
     while (Serial1.available() > 0) {
       byte responseByte = Serial1.read();
       
@@ -113,12 +120,13 @@ void uhf_rfid_process1(){
     response.trim();                           // Remove trailing space
     Serial.print("uhf1-");
     Serial.println(response);                  // Print the response as a single string
-  }
 }
 
 void uhf_rfid_process2(){
   // Define the data to send
-  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+//  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+    byte data[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
+
   int dataSize = sizeof(data);
 
   // Send the data to Serial1
@@ -127,9 +135,7 @@ void uhf_rfid_process2(){
   // Wait for a response
   delay(100); // Allow time for the response
 
-  // Collect and print the response as a hex string
-  if (Serial2.available() > 0) {
-    String response = ""; // Initialize an empty string to store the response
+  String response = ""; // Initialize an empty string to store the response
     while (Serial2.available() > 0) {
       byte responseByte = Serial2.read();
       
@@ -140,12 +146,13 @@ void uhf_rfid_process2(){
     response.trim();                           // Remove trailing space
     Serial.print("uhf2-");
     Serial.println(response);                  // Print the response as a single string
-  }
 }
 
 void uhf_rfid_process3(){
   // Define the data to send
-  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+//  byte data[] = {0xBB, 0x00, 0x27, 0x00, 0x03, 0x22, 0x27, 0x10, 0x83, 0x7E};
+  byte data[] = {0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
+
   int dataSize = sizeof(data);
 
   // Send the data to Serial1
@@ -154,9 +161,7 @@ void uhf_rfid_process3(){
   // Wait for a response
   delay(100); // Allow time for the response
 
-  // Collect and print the response as a hex string
-  if (Serial3.available() > 0) {
-    String response = ""; // Initialize an empty string to store the response
+  String response = ""; // Initialize an empty string to store the response
     while (Serial3.available() > 0) {
       byte responseByte = Serial3.read();
       
@@ -167,7 +172,7 @@ void uhf_rfid_process3(){
     response.trim();                           // Remove trailing space
     Serial.print("uhf3-");
     Serial.println(response);                  // Print the response as a single string
-  }
+
 }
 
 void mfrc522_process(){
