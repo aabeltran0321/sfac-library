@@ -33,7 +33,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID No.</th>
+                            <th>Transaction ID</th>
+                            <th>ID Number</th>
                             <th>Name</th>
                             <th>Book ID</th>
                             <th>Book Title</th>
@@ -45,6 +46,7 @@
                     <tbody>
                         {% for row in borrow_data %}
                         <tr>
+                            <td>{{ row.transaction_id }}</td>
                             <td>{{ row.id_no }}</td>
                             <td>{{ row.name }}</td>
                             <td>{{ row.book_id }}</td>

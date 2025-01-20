@@ -4,19 +4,37 @@ import sqlite3
 from flask_cors import CORS
 from Parser_WTA import Parser
 from serialport import HardwareSerial
+from check_serial_ports import list_serial_ports
+import time
+import hashlib
+import json
+from gmail_sender import generate_transaction_id, borrow_email, return_email
+from datetime import datetime
+from process_rfid import borrow_rfid, return_rfid
 
 app = Flask(__name__)
 CORS(app)
 
-PORT = "/dev/ttyACM0"
+PORT = list_serial_ports()
 Serial1 = HardwareSerial(PORT)
 extension = "./"
 SFAC_DATABASE = f'{extension}sfac_library.db'
+if PORT is None:
+    print("No Serial Port Detected!")
+    exit()
+print(PORT)
 
 UPLOAD_FOLDER = 'static/sfac_uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def dict_to_hash(data: dict) -> str:
+    return json.dumps(data, sort_keys=True)
+
+def hash_to_dict(data_string) -> dict:
+    return json.loads(data_string)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -38,13 +56,17 @@ def getnumdata():
     user_rows = cursor.fetchall()
     cursor.execute('SELECT * FROM Books')
     book_rows = cursor.fetchall()
+    cursor.execute("SELECT * FROM BorrowedBooks where status = 'borrowed'")
+    borrowed_books = cursor.fetchall()
+    cursor.execute("SELECT * FROM BorrowedBooks where status = 'returned'")
+    returned_books = cursor.fetchall()
     conn.close()
     data = {
         'total_books': len(book_rows),
         'total_members': len(user_rows),
         'total_penalty': 0,
-        'total_borrowed': 0,
-        'total_returned': 0,
+        'total_borrowed': len(borrowed_books),
+        'total_returned': len(returned_books),
         'total_not_returned': 0
     }
     return jsonify(data)
@@ -75,38 +97,41 @@ def getnumstudents():
     # Close the database connection
     conn.close()
     return jsonify(table_data)
-@app.route('/sfac/gettransactions')
+@app.route('/sfac/gettransactions', methods=['GET'])
 def gettransactions():
-    borrow_data = [
-        {
-            'id_no': '1001',
-            'name': 'Alice Johnson',
-            'book_id': 'B001',
-            'book_title': 'The Great Gatsby',
-            'borrow_date': '2024-01-01',
-            'return_date': '2024-01-15',
-            'status': 'Returned'
-        },
-        {
-            'id_no': '1002',
-            'name': 'Bob Smith',
-            'book_id': 'B002',
-            'book_title': 'To Kill a Mockingbird',
-            'borrow_date': '2024-01-05',
-            'return_date': '2024-01-20',
-            'status': 'Not Returned'
-        },
-        {
-            'id_no': '1003',
-            'name': 'Charlie Brown',
-            'book_id': 'B003',
-            'book_title': '1984',
-            'borrow_date': '2024-01-10',
-            'return_date': '2024-01-25',
-            'status': 'Returned'
-        }
-    ]
-    return jsonify(borrow_data)
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect(SFAC_DATABASE)
+        cursor = conn.cursor()
+        
+        # Fetch all data from BorrowedBooks table
+        cursor.execute("""
+            SELECT transaction_id, id_no, name, book_id, book_title, borrow_date, return_date, status
+            FROM BorrowedBooks
+        """)
+        rows = cursor.fetchall()
+        
+        # Convert data into a list of dictionaries
+        borrow_data = [
+            {
+                'transaction_id': row[0],
+                'id_no': row[1],
+                'name': row[2],
+                'book_id': row[3],
+                'book_title': row[4],
+                'borrow_date': row[5],
+                'return_date': row[6] if row[6] else '-',
+                'status': row[7].capitalize()
+            }
+            for row in rows
+        ]
+        print(borrow_data)
+        # Close the connection
+        conn.close()
+        
+        return jsonify(borrow_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/sfac/getbooks')
 def getbooks():
@@ -153,7 +178,7 @@ def sfac_add_user():
         cursor.execute('''
             INSERT INTO Users (id_number, last_name, first_name, middle_name, email, rfid)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (id_number, last_name, first_name, middle_name, email, rfid))
+        ''', (id_number, last_name.capitalize(), first_name.capitalize(), middle_name.capitalize(), email, rfid))
         conn.commit()
         conn.close()
 
@@ -334,13 +359,49 @@ def welcome():
 
 @app.route('/transaction')
 def transaction():
-    return render_template('transaction.html')
+    user_id = request.args.get('user_id', '')  # Get the 'user_input' query parameter
+    user = get_user_by_rfid(user_id)
+    try:
+        conn = sfac_get_db_connection()
+        cursor = conn.cursor()
+
+        # Query the database
+        query = "SELECT * FROM BorrowedBooks WHERE id_no = ?"
+        cursor.execute(query, (user["id_number"],))
+        rows = cursor.fetchall()
+        transaction_data = [
+            {
+                'transaction_id': row[0],
+                'id_no': row[1],
+                'name': row[2],
+                'book_id': row[3],
+                'book_title': row[4],
+                'borrow_date': row[5],
+                'return_date': row[6] if row[6] else '-',
+                'status': row[7].capitalize()
+            }
+            for row in rows
+        ]
+        try:
+            isBorrowed = transaction_data[-1]["status"] == "Borrowed"
+        except:
+            isBorrowed = False
+        return render_template('transaction.html', user_id = user_id, transaction_data = transaction_data, isBorrowed=isBorrowed)
+    except:
+        pass
+    
 
 
 @app.route('/selection')
 def selection():
+    global Serial1
+    try:
+        Serial1.close()
+    except:
+        pass
     genre = request.args.get('user_input', '')  # Get the 'user_input' query parameter
     type1 = request.args.get('type', '')            # Get the 'type' query parameter
+    user_id = request.args.get('user_id', '')  # Get the 'user_input' query parameter
 
     conn = sqlite3.connect(SFAC_DATABASE)
     cursor = conn.cursor()
@@ -355,20 +416,49 @@ def selection():
         ''')
 
     books = cursor.fetchall()  # Fetch the filtered or full list of books
-    conn.close()
-    print(books)
-    return render_template(
-        'selection.html',
-        user_input=genre.upper(),
-        type1=type1,
-        genre=genre,
-        books=books
-    )
+    if books:
+        conn.close()
+        print(books)
+        return render_template(
+            'selection.html',
+            user_input=genre.upper(),
+            type1=type1,
+            genre=genre,
+            books=books,
+            user_id=user_id,
+            book_title = "",
+            photo_path = ""
+        )
+    else:
+        transaction_id = request.args.get('transaction', '')    
+        book_title = genre
+        cursor.execute('''
+        SELECT genre, photo_path FROM Books where book_title = ?
+            ''', (book_title,))
+        data = cursor.fetchone()
+        print(data)
+        cursor.execute('''
+            SELECT * FROM Books WHERE genre = ?
+        ''', (data[0].capitalize(),))
+        books = cursor.fetchall()
+        return render_template(
+            'selection.html',
+            user_input=genre.upper(),
+            type1=type1,
+            genre=data[0].upper(),
+            books=books,
+            user_id=user_id,
+            book_title = book_title,
+            photo_path = data[1],
+            transaction_id = transaction_id
+        )
+         
+        
 @app.route('/category')
 def category():
     user_input = request.args.get('user_input', None)  # Get the 'user_input' query parameter
-    
-    return render_template('category.html',user_input=user_input)
+    user_id = request.args.get('user_id', '')  # Get the 'user_input' query parameter
+    return render_template('category.html',user_input=user_input, user_id = user_id)
 
 # Form route
 @app.route('/form', methods=['GET', 'POST'])
@@ -400,8 +490,71 @@ def sfac_get_rfid_code():
                 print(user)
                 if len(user.keys())>1:
                     Serial1.close()
-                    return jsonify(user)
+                    jsonify({"message": rfid_code})
+    
+@app.route('/get_books_by_photo_path', methods=['POST'])
+def get_books_by_photo_path():
+    # Parse JSON request
+    data = request.get_json()
+    photo_path = data.get('photo_path')
+    type1 = data.get('type')
+    rfid_code = data.get('user_id')
+
+    # Validate inputs
+    if not photo_path  or not rfid_code:
+        return jsonify({"error": "Missing required fields: photo_path, type, or user_id."}), 400
+
+    try:
+        # Open database connection
+        conn = sfac_get_db_connection()
+        cursor = conn.cursor()
+
+        # Query the database
+        query = "SELECT * FROM Books WHERE photo_path = ?"
+        cursor.execute(query, (photo_path,))
+        book = cursor.fetchone()
+
+        # Close connection
+        
+        #print(hash_to_dict(user_id))
+        if book:
+            global Serial1
+            try:
+                Serial1.close()
+            except:
+                pass
+            book_rfid_code = book["rfid_code"]
+            book_genre = book["genre"]
+            user = get_user_by_rfid(rfid_code)
+            name = f"{user['last_name'].capitalize()}, {user['first_name'].capitalize()} {user['middle_name'].capitalize()}"
+            
+            print(book_rfid_code, book_genre, type1)
+
+            if type1.lower() == "borrow":
+                transaction_id = generate_transaction_id()
                 
+                json_file_path = "rfid_codes_by_genre.json"
+                borrow_rfid(json_file_path, book_rfid_code, book_genre, PORT)
+                borrow_book(transaction_id, user['id_number'], name, book["book_id"], book["book_title"])
+                borrow_email(name, user["email"], book["book_title"], transaction_id)
+            else:
+                transaction_id = data.get('transaction_id')
+                json_file_path = "rfid_codes_by_genre.json"
+                return_rfid(json_file_path, book_rfid_code, book_genre, PORT)
+                print(transaction_id)
+                return_book(transaction_id)
+                return_email(name, user["email"], book["book_title"], transaction_id)
+
+                
+            
+
+            conn.close()
+            return jsonify({"message": "Done"})
+        else:
+            return jsonify({"message": "No book found with the specified path."}), 404
+
+    except sqlite3.Error as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500               
 
 def get_user_by_rfid(rfid):
     # Establish database connection
@@ -434,6 +587,49 @@ def get_user_by_rfid(rfid):
         return user_data
     else:
         return {"message": "User not found"}
+
+
+# Insert data when borrowing a book
+def borrow_book(transaction_id, id_no, name, book_id, book_title):
+    conn = sfac_get_db_connection()
+    cursor = conn.cursor()
+    borrow_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get the current date and time
+    return_date = ""  # Leave return date blank for borrowing
+    status = "borrowed"
+    
+    # Insert data into BorrowedBooks table
+    cursor.execute("""
+        INSERT INTO BorrowedBooks (transaction_id, id_no, name, book_id, book_title, borrow_date, return_date, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (transaction_id, id_no, name, book_id, book_title, borrow_date, return_date, status))
+    conn.commit()
+    print("Book borrowed successfully!")
+
+# Update data when returning a book
+def return_book(transaction_id):
+    conn = sfac_get_db_connection()
+    cursor = conn.cursor()
+    return_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get the current date and time for returning
+    status = "returned"
+    
+    # Check if the transaction exists
+    cursor.execute("""
+        SELECT * FROM BorrowedBooks WHERE transaction_id = ? AND status = 'borrowed'
+    """, (transaction_id,))
+    record = cursor.fetchone()
+    
+    if record:
+        # Update the record with return date and status
+        cursor.execute("""
+            UPDATE BorrowedBooks
+            SET return_date = ?, status = ?
+            WHERE transaction_id = ? AND status = 'borrowed'
+        """, (return_date, status, transaction_id))
+        conn.commit()
+        print("Book returned successfully!")
+    else:
+        print("No borrowed book found for the given transaction ID.")
+    
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=8000)

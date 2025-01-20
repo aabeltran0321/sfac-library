@@ -102,7 +102,7 @@
             margin-top: 23vh;
             cursor: pointer;
             margin-top: 0;
-            object-fit: contain;
+            object-fit: fill;
             background-color: white;
         }
         .choice:hover{
@@ -133,7 +133,7 @@
             position: relative;
             background-color: #FFF;
             display: flex;
-            height: 50vh;
+            height: 60vh;
         }
         .book-icon{
             margin-left: 0px;
@@ -150,6 +150,9 @@
             display: block;
             font-size: 1.1vw;
             line-height: 2vw;
+            text-align: center;
+            margin-top: auto;
+            margin-bottom: auto;
         }
         .answer{
             display: flex;
@@ -179,6 +182,25 @@
             text-align: center;
             width: 100%;
         }
+
+        .spinner {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #eb9d28;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+            transform: rotate(0deg);
+            }
+            100% {
+            transform: rotate(360deg);
+            }
+        }
     </style>
 <body>
     <img src="./static/selection.png" class="bkg">
@@ -193,8 +215,12 @@
         
     </div>
     <div class="headers">
-        <p onclick="window.location.href = '/category?user_input={{ type1 }}'"><i class="fa back">&#xf060;</i></p>
-        <p class="title">{{user_input}} CATEGORY</p>
+        {% if book_title %}
+            <p onclick="window.location.href = '/transaction?user_id={{ user_id }}'"><i class="fa back">&#xf060;</i></p>
+        {% else %}
+            <p onclick="window.location.href = '/category?user_input={{ type1 }}&user_id={{ user_id }}'"><i class="fa back">&#xf060;</i></p>
+        {% endif %}
+        <p class="title">{{genre.upper()}} CATEGORY</p>
     </div>
 
     <div class="row1">
@@ -222,6 +248,22 @@
     
     
 </body>
+<div id="loadingModal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div style="margin: auto; font-size: 18px;">
+            <h2>System Reminder</h2>
+            <ul>
+                <li>The system has successfully identified the book that matches your selected category.</li>
+                <li>A green light is now signaling its exact location on the shelf.</li>
+                <li>Please follow the light to return the book.</li> 
+                <li>Ensure the book is handled with care and returned on time according to the library's borrowing terms.</li>
+                <li>You will shortly receive a confirmation receipt in your email for returning a book.</li>
+                
+            </ul>
+            <div class="spinner"></div>
+        </div>
+    </div>
+  </div>
 
 <div class="modal-overlay" id="modal-confirm">
     <div class="modal">
@@ -252,16 +294,8 @@
     <div class="modal">
         <img src="./static/scientific.png" class="book-icon" id = "book-icon2">
         <div class="confirm-body2">
-            <h2>System Reminder</h2>
-            <ul>
-                <li>The system has successfully identified the book that matches your selected category.</li>
-                <li>A green light is now signaling its exact location on the shelf.</li>
-                <li>Please follow the light to return the book.</li> 
-                <li>Ensure the book is handled with care and returned on time according to the library's borrowing terms.</li>
-                <li>You will shortly receive a confirmation receipt in your email for returning a book.</li>
-                
-            </ul>
-            <p>Thank you for using the RFID bookshelf system to enhance your library experience!</p>
+            
+            <p style="font-size: 30px;">Thank you for using the RFID bookshelf system to enhance your library experience!</p>
             
             <div class="answer">
                 <button class="btnAns green" onclick="closeModalSystem();">Finish</button>
@@ -288,12 +322,8 @@
                 If not, it will signal a red light.
 
             </span>
-
-            </span>
-            <div class="answer">
-                <button class="btnAns green" onclick="confirmAnswerReturn();">Confirm</button>
-                <button class="btnAns red" onclick="closeModalReturn()">Cancel</button>
-            </div>
+            
+            <div class="spinner"></div>
         </div>
         
         
@@ -301,6 +331,7 @@
 
 </div>
 <script>
+    var img_file_path ;
     function updateDateTime() {
             const now = new Date();
 
@@ -336,12 +367,15 @@
             imgElement.src = src1; // Change to the new image URL
             document.getElementById("book-icon2").src = src1;
             document.getElementById("book-icon3").src = src1;
+            img_file_path = src1;
+
 
         }
 
         function openModalSystem(){
             const modal = document.getElementById('modal-system');
             modal.style.display = 'flex';
+            document.getElementById('loadingModal').style.display = 'none'; // Hide
         }
         function closeModalSystem(){
             const modal = document.getElementById('modal-system');
@@ -360,12 +394,60 @@
 
         function confirmAnswer(){
             closeModal();
-            openModalSystem();
+            fetchBookByGenre(img_file_path,"{{ type1 }}","{{ user_id }}", "");
+            document.getElementById('loadingModal').style.display = 'flex'; // Show
+            
         }
         function confirmAnswerReturn(){
             closeModalReturn();
             openModalSystem();
             
         }
+
+        async function fetchBookByGenre(photoPath, type1, userId, transaction_id) {
+            const url = 'http://localhost:8000/get_books_by_photo_path';
+
+            const payload = {
+                photo_path: photoPath,
+                type: type1,
+                user_id: userId,
+                transaction_id: transaction_id
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Unknown error occurred');
+                }
+
+                const data = await response.json();
+                console.log('Book details:', data);
+                closeModalReturn();
+                openModalSystem();
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching book by genre:', error);
+            }
+        }
+        function Loading(){
+            openModalReturn();
+            document.getElementById("book-icon2").src = "{{ photo_path }}";
+            document.getElementById("book-icon3").src = "{{ photo_path }}";
+            fetchBookByGenre("{{ photo_path }}","{{ type1 }}","{{ user_id }}", "{{ transaction_id }}");
+        }
+        {% if book_title %}
+        Loading();
+        {% else %}
+        console.log("test");
+        {% endif %}
     </script>
 </html>

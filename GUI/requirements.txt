@@ -1,5 +1,6 @@
 flask
-opencv-python
 pyserial
-opencv-contrib-python
 Flask-Cors
+requests
+playsound
+pydub
