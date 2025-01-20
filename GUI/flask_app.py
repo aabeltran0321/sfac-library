@@ -56,13 +56,17 @@ def getnumdata():
     user_rows = cursor.fetchall()
     cursor.execute('SELECT * FROM Books')
     book_rows = cursor.fetchall()
+    cursor.execute("SELECT * FROM BorrowedBooks where status = 'borrowed'")
+    borrowed_books = cursor.fetchall()
+    cursor.execute("SELECT * FROM BorrowedBooks where status = 'returned'")
+    returned_books = cursor.fetchall()
     conn.close()
     data = {
         'total_books': len(book_rows),
         'total_members': len(user_rows),
         'total_penalty': 0,
-        'total_borrowed': 0,
-        'total_returned': 0,
+        'total_borrowed': len(borrowed_books),
+        'total_returned': len(returned_books),
         'total_not_returned': 0
     }
     return jsonify(data)
