@@ -2,3 +2,5 @@ flask
 pyserial
 Flask-Cors
 requests
+playsound
+pydub
