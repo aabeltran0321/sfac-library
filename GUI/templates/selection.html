@@ -250,7 +250,7 @@
 
 <div class="modal-overlay" id="modal-system">
     <div class="modal">
-        <img src="./static/scientific.png" class="book-icon" >
+        <img src="./static/scientific.png" class="book-icon" id = "book-icon2">
         <div class="confirm-body2">
             <h2>System Reminder</h2>
             <ul>
@@ -275,7 +275,7 @@
 
 <div class="modal-overlay" id="modal-return">
     <div class="modal">
-        <img src="./static/scientific.png" class="book-icon" >
+        <img src="./static/scientific.png" class="book-icon" id = "book-icon3">
         <div class="confirm-body">
             <span>
                 
@@ -334,6 +334,8 @@
             modal.style.display = 'flex';
             const imgElement = document.getElementById("book-icon");
             imgElement.src = src1; // Change to the new image URL
+            document.getElementById("book-icon2").src = src1;
+            document.getElementById("book-icon3").src = src1;
 
         }
 
